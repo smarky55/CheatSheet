@@ -142,7 +142,6 @@ function loadSheets(zone, subzone, class, spec, role)
 			print(note)
 		end
 	end
-	sheetComp(Sheets[1],Sheets[2])
 end
 
 --Event Handler Functions--
