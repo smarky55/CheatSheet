@@ -27,15 +27,47 @@ local Sheets = {}
 --Object Definition--
 CheatSheet.Modules = {}
 
+
+-- Allows external modules to make themselves known to this core addon, allowing them to be used in game
 function CheatSheet:Register(module)
 	table.insert(CheatSheet.Modules, module)
 end
 
 --General Functions--
+
+-- Sheet comparison function for soortin of Sheets table
+-- Causes the most specific tables to be placed at the front of the list
+-- Falls back on sorting based on alphabetical order of first not for each sheet if both are equally specific
+function sheetComp(sheet1, sheet2)
+	local s1, s2 = 0, 0
+	for k, v in pairs(sheet1) do
+		if v~= nil and v ~= "ANY" then
+			s1 = s1 + 1
+		end
+	end
+	for k, v in pairs(sheet2) do
+		if v~= nil and v ~= "ANY" then
+			s2 = s2 + 1
+		end
+	end
+	if s1 ~= s2 then
+		return s1 > s2
+	else
+		return sheet1.NOTE[1] < sheet2.NOTE[1]
+	end
+end
+
+
+-- Creates index of sheets in all registered modules
+-- -Creates a table where each zone that appears in any sheet has a sub-table
+-- -This sub-table contains all referenced subzones, each with another sub-table
+-- -This sub-table contains two element tables 
+-- --where [1] is the index of the module in CheatSheet.Modules
+-- --and [2] is the index of a sheet in the respective module
 function buildIndex()
 	print("Building Index")
-	for modKey, module in pairs(CheatSheet.Modules) do
-		for sheetKey, sheet in pairs(module.SHEETS) do
+	for modKey, module in ipairs(CheatSheet.Modules) do
+		for sheetKey, sheet in ipairs(module.SHEETS) do
 			local sublist = {}
 			sublist[1] = modKey
 			sublist[2] = sheetKey
@@ -63,56 +95,78 @@ function buildIndex()
 	print("Index Built")
 end
 
-function loadSheets(zone, subzone)
+-- Load sheets relevant to the current context
+-- first creates a temporary index of all sheets that are globally relevant, relevant to the entire current zone, or relevant to the current subzone
+-- Then loops through this index to find sheets relevant to the current character's class, role or spec
+function loadSheets(zone, subzone, class, spec, role)
 	-- Reset contenst of Sheets
 	Sheets = {}
 	-- Create sub-index for locationally relevent sheets
 	local tempIndex = {}
 	if Index["ALL"] and Index["ALL"]["ALL"] then
-		for key, sheet in pairs(Index["ALL"]["ALL"]) do
+		for key, sheet in ipairs(Index["ALL"]["ALL"]) do
 			table.insert(tempIndex, sheet)
 		end
 	end
 	if Index[zone] and Index[zone]["ALL"] then
-		for key, sheet in pairs(Index[zone]["ALL"]) do
+		for key, sheet in ipairs(Index[zone]["ALL"]) do
 			table.insert(tempIndex, sheet)
 		end
 	end
 	if subzone and Index[zone] and Index[zone][subzone] then
-		for key, sheet in pairs(Index[zone][subzone]) do
+		for key, sheet in ipairs(Index[zone][subzone]) do
 			table.insert(tempIndex, sheet)
 		end
 	end
 	
 	-- Load content of the relevent sheets
-	for key, sheet in pairs(tempIndex) do
-		table.insert(Sheets, CheatSheet.Modules[sheet[1]].SHEETS[sheet[2]])
+	for key, sheet in ipairs(tempIndex) do
+		local thisSheet = CheatSheet.Modules[sheet[1]].SHEETS[sheet[2]]
+		local role = UnitGroupRolesAssigned("player")
+		local class, classToken = UnitClass("player")
+		if thisSheet.ROLE and thisSheet.ROLE ~= role  and thisSheet.ROLE ~= "ANY" then
+		elseif thisSheet.CLASS and thisSheet.CLASS ~=  class and thisSheet.CLASS ~= "ANY" then
+		elseif thisSheet.SPEC and thisSheet.SPEC ~= spec and thisSheet.SPEC ~= "ANY" then
+		else
+			table.insert(Sheets, thisSheet)
+		end
+		
 	end
 	
+	-- Sort sheets table
+	table.sort(Sheets, sheetComp)
+	
 	-- Debug: Print loaded sheets
-	for key, sheet in pairs(Sheets) do
-		for nkey, note in pairs(sheet.NOTE) do
+	for key, sheet in ipairs(Sheets) do
+		for nkey, note in ipairs(sheet.NOTE) do
 			print(note)
 		end
 	end
+	sheetComp(Sheets[1],Sheets[2])
 end
 
 --Event Handler Functions--
 function OnZoneChange(self, event, ...)
 	print("You are in: " .. GetMinimapZoneText())
-	loadSheets(GetZoneText(), GetSubZoneText())
+	local role = UnitGroupRolesAssigned("player")
+	local class = UnitClass("player")
+	local specID, spec = GetSpecializationInfo(GetSpecialization())
+	loadSheets(GetZoneText(), GetSubZoneText(), class, spec, role)
 end
 
 function OnReload(self, event, ...)
 	print("Game Reloaded")
-	-- for key, value in pairs(CheatSheet.Modules) do
+	-- for key, value in ipairs(CheatSheet.Modules) do
 		-- print("Module loaded: " .. value.NAME)
-		-- for k , v in pairs(value.SHEETS) do
+		-- for k , v in ipairs(value.SHEETS) do
 			-- print("  Has sheet for: " .. v.SUBZONE .. ":" .. v.ZONE)
 		-- end
 	-- end
 	buildIndex()
-	loadSheets(GetZoneText(), GetSubZoneText())
+	local role = UnitGroupRolesAssigned("player")
+	local class = UnitClass("player")
+	local specID, spec = GetSpecializationInfo(GetSpecialization())
+	loadSheets(GetZoneText(), GetSubZoneText(), class, spec, role)
 end
 
 

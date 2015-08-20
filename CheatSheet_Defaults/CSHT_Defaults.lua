@@ -41,5 +41,11 @@ CSHT_Defaults.SHEETS = {
 										"Or two"
 									}
 							},
+							{	ZONE = "Shrine of Seven Stars",
+								SUBZONE = "The Star's Bazaar",
+								CLASS = "Death Knight",
+								NOTE = {"Class specific note for DK",
+									}
+							},
 						}
 CheatSheet:Register(CSHT_Defaults)
