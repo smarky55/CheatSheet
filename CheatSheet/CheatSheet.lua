@@ -21,17 +21,46 @@ CheatSheet = {}
 --Local Variables--
 local ZoneEvents = {ZONE_CHANGED = true, ZONE_CHANGED_INDOORS = true, ZONE_CHANGED_NEW_AREA = true}
 local EventFrame = CreateFrame("Frame")
+local MainFrame = CreateFrame("Frame", "CSHT_MainFrame")
 local Index = {}
 local Sheets = {}
 
 --Object Definition--
 CheatSheet.Modules = {}
 
-
 -- Allows external modules to make themselves known to this core addon, allowing them to be used in game
 function CheatSheet:Register(module)
 	table.insert(CheatSheet.Modules, module)
 end
+
+--GUI Frames--
+
+do
+	MainFrame:SetFrameStrata("MEDIUM")
+	MainFrame:SetPoint("CENTER")
+	MainFrame:SetSize(150, 200)
+	MainFrame:SetMovable(true)
+	MainFrame:EnableMouse(true)
+	MainFrame:RegisterForDrag("LeftButton")
+	
+	MainFrame:SetScript("OnDragStart", function(self)
+		self:StartMoving()
+	end)
+	MainFrame:SetScript("OnDragStop", function(self)
+		self:StopMovingOrSizing()
+	end)
+	
+	local background = MainFrame:CreateTexture("CSHT_MFrame_BGND", "BACKGROUND")
+	do
+		background:SetTexture(0.5, 0.5, 0.5, 0.3)
+		background:SetAllPoints()
+	end
+	
+	
+	
+	MainFrame:Show()
+end
+
 
 --General Functions--
 
@@ -170,16 +199,18 @@ end
 
 
 --Event Registration--
-EventFrame:RegisterEvent("ZONE_CHANGED")
-EventFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
-EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-EventFrame:RegisterEvent("PLAYER_LOGIN")
+do
+	EventFrame:RegisterEvent("ZONE_CHANGED")
+	EventFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
+	EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	EventFrame:RegisterEvent("PLAYER_LOGIN")
 
-EventFrame:SetScript("OnEvent", 
-function(self, event, ...)
-	if ZoneEvents[event] then
-		OnZoneChange(self, event, ...)
-	elseif event == "PLAYER_LOGIN" then
-		OnReload(self, event, ...)
-	end
-end)
+	EventFrame:SetScript("OnEvent", 
+	function(self, event, ...)
+		if ZoneEvents[event] then
+			OnZoneChange(self, event, ...)
+		elseif event == "PLAYER_LOGIN" then
+			OnReload(self, event, ...)
+		end
+	end)
+end
