@@ -22,6 +22,8 @@ CheatSheet = {}
 local ZoneEvents = {ZONE_CHANGED = true, ZONE_CHANGED_INDOORS = true, ZONE_CHANGED_NEW_AREA = true}
 local EventFrame = CreateFrame("Frame")
 local MainFrame = CreateFrame("Frame", "CSHT_MainFrame")
+local ScrollFrame = CreateFrame("ScrollFrame", "CSHT_ScrollFrame")
+local SlideFrame = CreateFrame("Slider", "CSHT_SlideFrame")
 local Index = {}
 local Sheets = {}
 
@@ -34,32 +36,78 @@ function CheatSheet:Register(module)
 end
 
 --GUI Frames--
-
 do
-	MainFrame:SetFrameStrata("MEDIUM")
-	MainFrame:SetPoint("CENTER")
-	MainFrame:SetSize(150, 200)
-	MainFrame:SetMovable(true)
-	MainFrame:EnableMouse(true)
-	MainFrame:RegisterForDrag("LeftButton")
+	do -- Setup Main Frame
+		MainFrame:SetFrameStrata("MEDIUM")
+		--MainFrame:SetParent(ScrollFrame)
+		MainFrame:SetPoint("TOPLEFT")
+		MainFrame:SetHeight(400)
+		MainFrame:SetWidth(150)
+		MainFrame:SetMovable(true)
+		
+		local MBG = MainFrame:CreateTexture(nil, "BACKGROUND")
+		MBG:SetTexture(0.5, 0, 0, 0.5)
+		MBG:SetAllPoints()
+		local bot = MainFrame:CreateTexture()
+		bot:SetTexture(0,0,0)
+		bot:SetPoint("BOTTOM")
+		bot:SetSize(50, 20)
+	end
 	
-	MainFrame:SetScript("OnDragStart", function(self)
-		self:StartMoving()
-	end)
-	MainFrame:SetScript("OnDragStop", function(self)
-		self:StopMovingOrSizing()
-	end)
-	
-	local background = MainFrame:CreateTexture("CSHT_MFrame_BGND", "BACKGROUND")
-	do
-		background:SetTexture(0.5, 0.5, 0.5, 0.3)
+	do -- Set up scroll frame to contain main frame
+		ScrollFrame:SetFrameStrata("MEDIUM")
+		ScrollFrame:SetPoint("CENTER")
+		ScrollFrame:SetSize(160, 200)
+		ScrollFrame:SetMovable(true)
+		ScrollFrame:EnableMouse(true)
+		ScrollFrame:EnableMouseWheel(true)
+		ScrollFrame:RegisterForDrag("LeftButton")
+		ScrollFrame:SetScrollChild(MainFrame)
+		
+		ScrollFrame:SetScript("OnDragStart", function(self)
+			self:StartMoving()
+		end)
+		ScrollFrame:SetScript("OnDragStop", function(self)
+			self:StopMovingOrSizing()
+		end)
+		ScrollFrame:SetScript("OnMouseWheel", function(self, delta)
+			local scroll = math.max(math.min(self:GetVerticalScroll() + (-10 * delta), (MainFrame:GetHeight() - ScrollFrame:GetHeight())) , 0)
+			self:SetVerticalScroll(scroll)
+			SlideFrame:SetValue(scroll)
+		end)
+		
+		local background = ScrollFrame:CreateTexture(nil, "BACKGROUND")
+		background:SetTexture(0.5, 0.5, 0.5, 0.5)
 		background:SetAllPoints()
 	end
 	
+	do -- Set up vertical scroll bar
+		SlideFrame:SetFrameStrata("Medium")
+		SlideFrame:SetParent(ScrollFrame)
+		SlideFrame:SetPoint("TOPRIGHT")
+		SlideFrame:SetSize(10, 200)
+		SlideFrame:EnableMouse(true)
+		print(MainFrame:GetHeight() - ScrollFrame:GetHeight())
+		SlideFrame:SetMinMaxValues(0, MainFrame:GetHeight() - ScrollFrame:GetHeight())
+		SlideFrame:Enable()
+		SlideFrame:SetValue(0)
+		
+		SlideFrame:SetScript("OnValueChanged", function (self, value) 
+			self:GetParent():SetVerticalScroll(value) 
+		end)
+		
+		local SlideBG = SlideFrame:CreateTexture(nil, "BACKGROUND")
+		SlideBG:SetTexture(0.1, 0.1, 0.1, 0.3)
+		SlideBG:SetAllPoints()
+		
+		local SlideThumb = SlideFrame:CreateTexture()
+		SlideThumb:SetTexture(0.1, 0.1, 0.1, 0.5)
+		SlideFrame:SetThumbTexture(SlideThumb)
+	end
 	
-	
-	MainFrame:Show()
+	print(ScrollFrame:GetScrollChild():GetName())
 end
+
 
 
 --General Functions--
