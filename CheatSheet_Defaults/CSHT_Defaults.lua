@@ -21,8 +21,8 @@ CSHT_Defaults.NAME = "CSHT_Defaults"
 CSHT_Defaults.SHEETS = {
 							{	ZONE = "Shrine of Seven Stars", 
 								SUBZONE = "The Golden Lantern", 
-								NOTE = {"Test note.", 
-										"Additional test note!"
+								NOTE = {"-Test note.", 
+										"-Additional test note!"
 									}
 							},
 							{	ZONE = "Shrine of Seven Stars",
@@ -37,8 +37,8 @@ CSHT_Defaults.SHEETS = {
 							},
 							{	ZONE = "Shrine of Seven Stars",
 								SUBZONE = "The Star's Bazaar",
-								NOTE = {"Another test note",
-										"Or two"
+								NOTE = {"-Another test note",
+										"-Or two"
 									}
 							},
 							{	ZONE = "Shrine of Seven Stars",

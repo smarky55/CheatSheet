@@ -20,6 +20,7 @@ CheatSheet = {}
 
 --Local Variables--
 local ZoneEvents = {ZONE_CHANGED = true, ZONE_CHANGED_INDOORS = true, ZONE_CHANGED_NEW_AREA = true}
+local SortMethod = {}
 local EventFrame = CreateFrame("Frame")
 local MainFrame = CreateFrame("Frame", "CSHT_MainFrame")
 local ScrollFrame = CreateFrame("ScrollFrame", "CSHT_ScrollFrame")
@@ -36,12 +37,17 @@ local WidthMin = 100
 
 --Object Definition--
 CheatSheet.Modules = {}
+CheatSheet.Options = {}
+
 
 -- Allows external modules to make themselves known to this core addon, allowing them to be used in game
 function CheatSheet:Register(module)
 	table.insert(CheatSheet.Modules, module)
 end
 
+--Default Settings
+CheatSheet.Options.CollateNotes = true
+CheatSheet.Options.SortMethod = "DescSpecific"
 
 
 --General Functions--
@@ -49,7 +55,7 @@ end
 -- Sheet comparison function for soortin of Sheets table
 -- Causes the most specific tables to be placed at the front of the list
 -- Falls back on sorting based on alphabetical order of first not for each sheet if both are equally specific
-function sheetComp(sheet1, sheet2)
+function SortMethod.DescSpecific(sheet1, sheet2)
 	local s1, s2 = 0, 0
 	for k, v in pairs(sheet1) do
 		if v~= nil and v ~= "ANY" then
@@ -76,7 +82,7 @@ end
 -- --where [1] is the index of the module in CheatSheet.Modules
 -- --and [2] is the index of a sheet in the respective module
 function buildIndex()
-	print("Building Index")
+	-- print("Building Index")
 	for modKey, module in ipairs(CheatSheet.Modules) do
 		for sheetKey, sheet in ipairs(module.SHEETS) do
 			local sublist = {}
@@ -103,7 +109,7 @@ function buildIndex()
 			table.insert(Index[zone][subzone], sublist)
 		end
 	end
-	print("Index Built")
+	-- print("Index Built")
 end
 
 -- Load sheets relevant to the current context
@@ -145,14 +151,14 @@ function loadSheets(zone, subzone, class, spec, role)
 	end
 	
 	-- Sort sheets table
-	table.sort(Sheets, sheetComp)
+	table.sort(Sheets, SortMethod[CheatSheet.Options.SortMethod])
 	
 	-- Debug: Print loaded sheets
-	for key, sheet in ipairs(Sheets) do
-		for nkey, note in ipairs(sheet.NOTE) do
-			print(note)
-		end
-	end
+	-- for key, sheet in ipairs(Sheets) do
+		-- for nkey, note in ipairs(sheet.NOTE) do
+			-- print(note)
+		-- end
+	-- end
 end
 
 function CreateSheetFrame(index)
@@ -184,15 +190,27 @@ function UpdateSheetFrames()
 	local index = 0
 	local offset = 5
 	for key, sheet in ipairs(Sheets)do
-		for nKey, note in ipairs(sheet.NOTE) do
-			index  = index + 1
+		if CheatSheet.Options.CollateNotes then
+			index = index + 1
 			if not SheetFrames[index] then
 				SheetFrames[index] = CreateSheetFrame(index)
 			end
-			SheetFrames[index]:UpdateText(note)
+			local tempText = table.concat(sheet.NOTE, "\n")
+			SheetFrames[index]:UpdateText(tempText)
 			SheetFrames[index]:Show()
 			SheetFrames[index]:SetPoint("TOPLEFT", 5, -offset)
 			offset = offset + 5 + SheetFrames[index]:GetHeight()
+		else
+			for nKey, note in ipairs(sheet.NOTE) do
+				index  = index + 1
+				if not SheetFrames[index] then
+					SheetFrames[index] = CreateSheetFrame(index)
+				end
+				SheetFrames[index]:UpdateText(note)
+				SheetFrames[index]:Show()
+				SheetFrames[index]:SetPoint("TOPLEFT", 5, -offset)
+				offset = offset + 5 + SheetFrames[index]:GetHeight()
+			end
 		end
 	end
 	MainFrame:SetHeight(offset)
@@ -206,7 +224,7 @@ end
 
 --Event Handler Functions--
 function OnZoneChange(self, event, ...)
-	print("You are in: " .. GetMinimapZoneText())
+	-- print("You are in: " .. GetMinimapZoneText())
 	local role = UnitGroupRolesAssigned("player")
 	local class = UnitClass("player")
 	local specID, spec = GetSpecializationInfo(GetSpecialization())
@@ -215,13 +233,7 @@ function OnZoneChange(self, event, ...)
 end
 
 function OnReload(self, event, ...)
-	print("Game Reloaded")
-	-- for key, value in ipairs(CheatSheet.Modules) do
-		-- print("Module loaded: " .. value.NAME)
-		-- for k , v in ipairs(value.SHEETS) do
-			-- print("  Has sheet for: " .. v.SUBZONE .. ":" .. v.ZONE)
-		-- end
-	-- end
+	-- print("Game Reloaded")
 	buildIndex()
 	local role = UnitGroupRolesAssigned("player")
 	local class = UnitClass("player")
@@ -240,9 +252,9 @@ do
 		MainFrame:SetWidth(150)
 		MainFrame:SetMovable(true)
 		
-		local MBG = MainFrame:CreateTexture(nil, "BACKGROUND")
-		MBG:SetTexture(0.5, 0, 0, 0.5)
-		MBG:SetAllPoints()
+		--local MBG = MainFrame:CreateTexture(nil, "BACKGROUND")
+		--MBG:SetTexture(0.5, 0, 0, 0.5)
+		--MBG:SetAllPoints()
 	end
 	
 	do -- Set up scroll frame to contain main frame
@@ -334,13 +346,13 @@ do
 		ResizeFrame:SetPoint("BOTTOMRIGHT", -10, 0)
 		ResizeFrame:SetSize(10, 10)
 		ResizeFrame:EnableMouse(true)
-		ResizeFrame:RegisterForDrag("LeftButton")
+		ResizeFrame:RegisterForClicks("LeftButton")
 		ResizeFrame:Enable()
 		
-		ResizeFrame:SetScript("OnDragStart", function(self)
+		ResizeFrame:SetScript("OnMouseDown", function(self)
 			self:GetParent():StartSizing()
 		end)
-		ResizeFrame:SetScript("OnDragStop", function(self)
+		ResizeFrame:SetScript("OnMouseUp", function(self)
 			self:GetParent():StopMovingOrSizing()
 		end)
 		
@@ -363,6 +375,7 @@ do
 	do -- Set up Font object
 		SheetFont:SetFont("Fonts\\FRIZQT__.TTF", 10)
 		SheetFont:SetTextColor(1, 1, 1, 1)
+		SheetFont:SetJustifyH("LEFT")
 	end
 	
 	SheetFrames[1] = CreateSheetFrame(1)
