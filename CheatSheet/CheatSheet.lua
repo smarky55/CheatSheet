@@ -25,7 +25,10 @@ local EventFrame = CreateFrame("Frame")
 local MainFrame = CreateFrame("Frame", "CSHT_MainFrame")
 local ScrollFrame = CreateFrame("ScrollFrame", "CSHT_ScrollFrame")
 local SlideFrame = CreateFrame("Slider", "CSHT_SlideFrame")
-local ResizeFrame = CreateFrame("Button", "CSHT_ResizeFrame")
+local ResizeButton = CreateFrame("Button", "CSHT_ResizeButton")
+local MenuFrame = CreateFrame("Frame", "CSHT_MenuFrame")
+local LockButton = CreateFrame("Button", "CSHT_LockButton")
+local VisibleButton = CreateFrame("Button", "CSHT_VisibleButton")
 local SheetFont = CreateFont("CSHT_SheetFont")
 local Index = {}
 local Sheets = {}
@@ -33,11 +36,13 @@ local SheetFrames = {}
 local FrameTexts = {}
 local HeightMin = 100
 local WidthMin = 100
+local forceReload = true
 
 
 --Object Definition--
 CheatSheet.Modules = {}
-CheatSheet.Options = {}
+CheatSheet.Settings = {}
+CheatSheet.Visible = true
 
 
 -- Allows external modules to make themselves known to this core addon, allowing them to be used in game
@@ -45,35 +50,107 @@ function CheatSheet:Register(module)
 	table.insert(CheatSheet.Modules, module)
 end
 
+function CheatSheet:Show()
+	ScrollFrame:Show()
+end
+
+function CheatSheet:Hide()
+	ScrollFrame:Hide()
+end
+
+function CheatSheet:Toggle()
+	if CheatSheet.Visible then
+		CheatSheet:Hide()
+	else
+		CheatSheet:Show()
+	end
+	CheatSheet.Visible = not CheatSheet.Visible
+end
+
+function CheatSheet:LoadSettings()
+	if not forceReload or CSHT_Settings and CSHT_Settings.init then 
+		CheatSheet.Settings = CSHT_Settings
+	else
+		CSHT_Settings = CheatSheet.Settings
+	end
+	ScrollFrame:UpdatePos(CheatSheet.Settings.FramePos)
+end
+
+function CheatSheet:SaveSettings()
+	CSHT_Settings = CheatSheet.Settings
+end
+
 --Default Settings
-CheatSheet.Options.CollateNotes = true
-CheatSheet.Options.SortMethod = "DescSpecific"
+CheatSheet.Settings.Init = true
+CheatSheet.Settings.CollateNotes = true
+CheatSheet.Settings.SortMethod = "DescSpecific"
+CheatSheet.Settings.FramePos = {GetScreenWidth()/2, GetScreenHeight()/2}
 
 
 --General Functions--
 
--- Sheet comparison function for soortin of Sheets table
--- Causes the most specific tables to be placed at the front of the list
--- Falls back on sorting based on alphabetical order of first not for each sheet if both are equally specific
-function SortMethod.DescSpecific(sheet1, sheet2)
-	local s1, s2 = 0, 0
-	for k, v in pairs(sheet1) do
-		if v~= nil and v ~= "ANY" then
-			s1 = s1 + 1
+do -- Sorting Functions
+	-- Sheet comparison function for soortin of Sheets table
+	-- Causes the most specific tables to be placed at the front of the list
+	-- Falls back on sorting based on alphabetical order of first not for each sheet if both are equally specific
+	function SortMethod.DescSpecific(sheet1, sheet2)
+		local s1, s2 = 0, 0
+		for k, v in pairs(sheet1) do
+			if v~= nil and v ~= "ANY" then
+				s1 = s1 + 1
+			end
+		end
+		for k, v in pairs(sheet2) do
+			if v~= nil and v ~= "ANY" then
+				s2 = s2 + 1
+			end
+		end
+		if s1 ~= s2 then
+			return s1 > s2
+		else
+			return sheet1.NOTE[1] < sheet2.NOTE[1]
 		end
 	end
-	for k, v in pairs(sheet2) do
-		if v~= nil and v ~= "ANY" then
-			s2 = s2 + 1
+
+	function SortMethod.AscSpecific(sheet1, sheet2)
+		local s1, s2 = 0, 0
+		for k, v in pairs(sheet1) do
+			if v~= nil and v ~= "ANY" then
+				s1 = s1 + 1
+			end
+		end
+		for k, v in pairs(sheet2) do
+			if v~= nil and v ~= "ANY" then
+				s2 = s2 + 1
+			end
+		end
+		if s1 ~= s2 then
+			return s1 < s2
+		else
+			if sheet1.TITLE and sheet2.TITLE then
+				return sheet1.TITLE < sheet2.TITLE
+			else
+				return sheet1.NOTE[1] < sheet2.NOTE[1]
+			end
 		end
 	end
-	if s1 ~= s2 then
-		return s1 > s2
-	else
-		return sheet1.NOTE[1] < sheet2.NOTE[1]
+
+	function SortMethod.DescAlphabet(sheet1, sheet2)
+		if sheet1.TITLE and sheet2.TITLE then
+			return sheet1.TITLE > sheet2.TITLE
+		else
+			return sheet1.NOTE[1] > sheet2.NOTE[1]
+		end
+	end
+
+	function SortMethod.AscAlphabet(sheet1, sheet2)
+		if sheet1.TITLE and sheet2.TITLE then
+			return sheet1.TITLE < sheet2.TITLE
+		else
+			return sheet1.NOTE[1] < sheet2.NOTE[1]
+		end
 	end
 end
-
 
 -- Creates index of sheets in all registered modules
 -- -Creates a table where each zone that appears in any sheet has a sub-table
@@ -151,7 +228,7 @@ function loadSheets(zone, subzone, class, spec, role)
 	end
 	
 	-- Sort sheets table
-	table.sort(Sheets, SortMethod[CheatSheet.Options.SortMethod])
+	table.sort(Sheets, SortMethod[CheatSheet.Settings.SortMethod])
 	
 	-- Debug: Print loaded sheets
 	-- for key, sheet in ipairs(Sheets) do
@@ -190,7 +267,7 @@ function UpdateSheetFrames()
 	local index = 0
 	local offset = 5
 	for key, sheet in ipairs(Sheets)do
-		if CheatSheet.Options.CollateNotes then
+		if CheatSheet.Settings.CollateNotes then
 			index = index + 1
 			if not SheetFrames[index] then
 				SheetFrames[index] = CreateSheetFrame(index)
@@ -222,24 +299,25 @@ function UpdateSheetFrames()
 end
 
 
---Event Handler Functions--
-function OnZoneChange(self, event, ...)
-	-- print("You are in: " .. GetMinimapZoneText())
-	local role = UnitGroupRolesAssigned("player")
-	local class = UnitClass("player")
-	local specID, spec = GetSpecializationInfo(GetSpecialization())
-	loadSheets(GetZoneText(), GetSubZoneText(), class, spec, role)
-	UpdateSheetFrames()
-end
+do -- Event Handler Functions
+	function OnZoneChange(self, event, ...)
+		-- print("You are in: " .. GetMinimapZoneText())
+		local role = UnitGroupRolesAssigned("player")
+		local class = UnitClass("player")
+		local specID, spec = GetSpecializationInfo(GetSpecialization())
+		loadSheets(GetZoneText(), GetSubZoneText(), class, spec, role)
+		UpdateSheetFrames()
+	end
 
-function OnReload(self, event, ...)
-	-- print("Game Reloaded")
-	buildIndex()
-	local role = UnitGroupRolesAssigned("player")
-	local class = UnitClass("player")
-	local specID, spec = GetSpecializationInfo(GetSpecialization())
-	loadSheets(GetZoneText(), GetSubZoneText(), class, spec, role)
-	UpdateSheetFrames()
+	function OnReload(self, event, ...)
+		-- print("Game Reloaded")
+		buildIndex()
+		local role = UnitGroupRolesAssigned("player")
+		local class = UnitClass("player")
+		local specID, spec = GetSpecializationInfo(GetSpecialization())
+		loadSheets(GetZoneText(), GetSubZoneText(), class, spec, role)
+		UpdateSheetFrames()
+	end
 end
 
 --GUI Frames--
@@ -259,7 +337,7 @@ do
 	
 	do -- Set up scroll frame to contain main frame
 		ScrollFrame:SetFrameStrata("MEDIUM")
-		ScrollFrame:SetPoint("CENTER")
+		ScrollFrame:SetPoint("BOTTOMLEFT")
 		ScrollFrame:SetSize(160, 200)
 		ScrollFrame:SetMovable(true)
 		ScrollFrame:EnableMouse(true)
@@ -273,6 +351,8 @@ do
 		end)
 		ScrollFrame:SetScript("OnDragStop", function(self)
 			self:StopMovingOrSizing()
+			CheatSheet.Settings.FramePos[1] = ScrollFrame:GetLeft()
+			CheatSheet.Settings.FramePos[2] = ScrollFrame:GetBottom()			
 		end)
 		ScrollFrame:SetScript("OnMouseWheel", function(self, delta)
 			local scroll = math.max(math.min(self:GetVerticalScroll() + (-10 * delta), (MainFrame:GetHeight() - ScrollFrame:GetHeight())) , 0)
@@ -314,7 +394,10 @@ do
 			SlideFrame:SetMinMaxValues(0, math.max(MainFrame:GetHeight() - Height, 0))
 			SlideFrame:SetHeight(Height)
 		end
-
+		
+		function ScrollFrame:UpdatePos(pos)
+			ScrollFrame:SetPoint("BOTTOMLEFT", pos[1], pos[2])
+		end
 	end
 	
 	do -- Set up vertical scroll bar
@@ -341,35 +424,39 @@ do
 	end
 	
 	do -- Set up resize button
-		ResizeFrame:SetFrameStrata("MEDIUM")
-		ResizeFrame:SetParent(ScrollFrame)
-		ResizeFrame:SetPoint("BOTTOMRIGHT", -10, 0)
-		ResizeFrame:SetSize(10, 10)
-		ResizeFrame:EnableMouse(true)
-		ResizeFrame:RegisterForClicks("LeftButton")
-		ResizeFrame:Enable()
+		ResizeButton:SetFrameStrata("MEDIUM")
+		ResizeButton:SetParent(ScrollFrame)
+		ResizeButton:SetPoint("BOTTOMRIGHT", -10, 0)
+		ResizeButton:SetSize(10, 10)
+		ResizeButton:EnableMouse(true)
+		ResizeButton:RegisterForClicks("LeftButton")
+		ResizeButton:Enable()
 		
-		ResizeFrame:SetScript("OnMouseDown", function(self)
+		ResizeButton:SetScript("OnMouseDown", function(self)
 			self:GetParent():StartSizing()
 		end)
-		ResizeFrame:SetScript("OnMouseUp", function(self)
+		ResizeButton:SetScript("OnMouseUp", function(self)
 			self:GetParent():StopMovingOrSizing()
 		end)
 		
-		local ResizeBG = ResizeFrame:CreateTexture()
+		local ResizeBG = ResizeButton:CreateTexture()
 		ResizeBG:SetTexture(0.1, 0.1, 0.1, 0.5)
 		ResizeBG:SetAllPoints()
-		ResizeFrame:SetNormalTexture(ResizeBG)
+		ResizeButton:SetNormalTexture(ResizeBG)
 		
-		local ResizeHL = ResizeFrame:CreateTexture()
-		ResizeHL:SetTexture(0.5, 0.5, 0.5, 0.5)
+		local ResizeHL = ResizeButton:CreateTexture()
+		ResizeHL:SetTexture(0.5, 0.5, 0.5, 1)
 		ResizeBG:SetAllPoints()
-		ResizeFrame:SetHighlightTexture(ResizeHL, "BLEND")
+		ResizeButton:SetHighlightTexture(ResizeHL)
 		
-		local ResizePSH = ResizeFrame:CreateTexture()
+		local ResizePSH = ResizeButton:CreateTexture()
 		ResizePSH:SetTexture(0.8, 0.8, 0.8, 0.5)
 		ResizePSH:SetAllPoints()
-		ResizeFrame:SetPushedTexture(ResizePSH)
+		ResizeButton:SetPushedTexture(ResizePSH)
+	end
+	
+	do -- Set up visible toggle button
+		--TODO!!!!
 	end
 	
 	do -- Set up Font object
@@ -389,13 +476,20 @@ do
 	EventFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
 	EventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 	EventFrame:RegisterEvent("PLAYER_LOGIN")
+	EventFrame:RegisterEvent("ADDON_LOADED")
+	EventFrame:RegisterEvent("PLAYER_LOGOUT")
 
 	EventFrame:SetScript("OnEvent", 
 	function(self, event, ...)
+		arg1, arg2 = ...
 		if ZoneEvents[event] then
 			OnZoneChange(self, event, ...)
 		elseif event == "PLAYER_LOGIN" then
 			OnReload(self, event, ...)
+		elseif event == "PLAYER_LOGOUT" then
+			CheatSheet:SaveSettings()
+		elseif event == "ADDON_LOADED" and arg1 == "CheatSheet" then
+			CheatSheet:LoadSettings()
 		end
 	end)
 	
