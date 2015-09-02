@@ -68,12 +68,13 @@ function CheatSheet:Toggle()
 end
 
 function CheatSheet:LoadSettings()
-	if not forceReload or CSHT_Settings and CSHT_Settings.init then 
+	if not forceReload and CSHT_Settings then 
 		CheatSheet.Settings = CSHT_Settings
 	else
 		CSHT_Settings = CheatSheet.Settings
 	end
-	ScrollFrame:UpdatePos(CheatSheet.Settings.FramePos)
+	ScrollFrame:UpdatePos(CheatSheet.Settings.MainFramePos)
+	ScrollFrame:UpdateDim(CheatSheet.Settings.MainFrameDim)
 end
 
 function CheatSheet:SaveSettings()
@@ -81,10 +82,11 @@ function CheatSheet:SaveSettings()
 end
 
 --Default Settings
-CheatSheet.Settings.Init = true
 CheatSheet.Settings.CollateNotes = true
 CheatSheet.Settings.SortMethod = "DescSpecific"
-CheatSheet.Settings.FramePos = {GetScreenWidth()/2, GetScreenHeight()/2}
+CheatSheet.Settings.MainFramePos = {GetScreenWidth()/2, GetScreenHeight()/2}
+CheatSheet.Settings.MainFrameDim = {160, 200}
+CheatSheet.Settings.ConfigFramePos = {GetScreenWidth()/2, GetScreenHeight()/2}
 
 
 --General Functions--
@@ -252,9 +254,9 @@ function CreateSheetFrame(index)
 	SheetFrame.BGTexture:SetTexture(0.1,0.1,0.1,0.5)
 	SheetFrame.BGTexture:SetAllPoints()
 	function SheetFrame:UpdateSize()
-		self:SetHeight(self.fontString:GetStringHeight()+10)
 		self:SetWidth(self:GetParent():GetWidth() - 10)
 		self.fontString:SetWidth(self:GetWidth() - 10)
+		self:SetHeight(self.fontString:GetStringHeight()+10)
 	end
 	function SheetFrame:UpdateText(text)
 		self.fontString:SetText(text)
@@ -320,6 +322,15 @@ do -- Event Handler Functions
 	end
 end
 
+
+do -- Fonts
+	do -- Set up Font object
+		SheetFont:SetFont("Fonts\\FRIZQT__.TTF", 10)
+		SheetFont:SetTextColor(1, 1, 1, 1)
+		SheetFont:SetJustifyH("LEFT")
+	end
+end
+
 --GUI Frames--
 do
 	do -- Setup Main Frame
@@ -337,7 +348,7 @@ do
 	
 	do -- Set up scroll frame to contain main frame
 		ScrollFrame:SetFrameStrata("MEDIUM")
-		ScrollFrame:SetPoint("BOTTOMLEFT")
+		ScrollFrame:SetPoint("CENTER")
 		ScrollFrame:SetSize(160, 200)
 		ScrollFrame:SetMovable(true)
 		ScrollFrame:EnableMouse(true)
@@ -345,14 +356,15 @@ do
 		ScrollFrame:RegisterForDrag("LeftButton")
 		ScrollFrame:SetScrollChild(MainFrame)
 		ScrollFrame:SetResizable(true)
+		ScrollFrame:SetToplevel(true)
 		
 		ScrollFrame:SetScript("OnDragStart", function(self)
 			self:StartMoving()
 		end)
 		ScrollFrame:SetScript("OnDragStop", function(self)
 			self:StopMovingOrSizing()
-			CheatSheet.Settings.FramePos[1] = ScrollFrame:GetLeft()
-			CheatSheet.Settings.FramePos[2] = ScrollFrame:GetBottom()			
+			CheatSheet.Settings.MainFramePos[1] = ScrollFrame:GetLeft()
+			CheatSheet.Settings.MainFramePos[2] = ScrollFrame:GetBottom()			
 		end)
 		ScrollFrame:SetScript("OnMouseWheel", function(self, delta)
 			local scroll = math.max(math.min(self:GetVerticalScroll() + (-10 * delta), (MainFrame:GetHeight() - ScrollFrame:GetHeight())) , 0)
@@ -396,7 +408,11 @@ do
 		end
 		
 		function ScrollFrame:UpdatePos(pos)
-			ScrollFrame:SetPoint("BOTTOMLEFT", pos[1], pos[2])
+			self:SetPoint("CENTER", pos[1], pos[2])
+		end
+		
+		function ScrollFrame:UpdateDim(dim)
+			self:SetSize(dim[1], dim[2])
 		end
 	end
 	
@@ -432,10 +448,10 @@ do
 		ResizeButton:RegisterForClicks("LeftButton")
 		ResizeButton:Enable()
 		
-		ResizeButton:SetScript("OnMouseDown", function(self)
+		ResizeButton:SetScript("OnMouseDown", function(self, button)
 			self:GetParent():StartSizing()
 		end)
-		ResizeButton:SetScript("OnMouseUp", function(self)
+		ResizeButton:SetScript("OnMouseUp", function(self, button)
 			self:GetParent():StopMovingOrSizing()
 		end)
 		
@@ -457,12 +473,6 @@ do
 	
 	do -- Set up visible toggle button
 		--TODO!!!!
-	end
-	
-	do -- Set up Font object
-		SheetFont:SetFont("Fonts\\FRIZQT__.TTF", 10)
-		SheetFont:SetTextColor(1, 1, 1, 1)
-		SheetFont:SetJustifyH("LEFT")
 	end
 	
 	SheetFrames[1] = CreateSheetFrame(1)
