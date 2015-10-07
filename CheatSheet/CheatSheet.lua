@@ -42,6 +42,8 @@ local forceReload = true
 --Object Definition--
 CheatSheet.Modules = {}
 CheatSheet.Settings = {}
+CheatSheet.SettingsFrame = CreateFrame("Frame", "CSHT_ConfigFrame")
+CheatSheet.SettingsFrame.Visible = false
 CheatSheet.Visible = true
 
 
@@ -87,6 +89,8 @@ CheatSheet.Settings.SortMethod = "DescSpecific"
 CheatSheet.Settings.MainFramePos = {GetScreenWidth()/2, GetScreenHeight()/2}
 CheatSheet.Settings.MainFrameDim = {160, 200}
 CheatSheet.Settings.ConfigFramePos = {GetScreenWidth()/2, GetScreenHeight()/2}
+CheatSheet.Settings.VisMMRad = 80
+CheatSheet.Settings.VisMMAngle = -2.2
 
 
 --General Functions--
@@ -472,7 +476,62 @@ do
 	end
 	
 	do -- Set up visible toggle button
-		--TODO!!!!
+		function VisibleButton:CalcPos(radius, angle)
+			self.pos[1] = radius * math.sin(angle)
+			self.pos[2] = radius * math.cos(angle)
+		end
+		function VisibleButton:CalcAngle(xPos, yPos)
+			CheatSheet.Settings.VisMMAngle = math.atan2(xPos, yPos)
+			print(CheatSheet.Settings.VisMMAngle)
+		end
+		VisibleButton.pos = {}
+		VisibleButton.IsMoving = false
+		VisibleButton:CalcPos(CheatSheet.Settings.VisMMRad, CheatSheet.Settings.VisMMAngle)
+		VisibleButton:SetFrameStrata("MEDIUM")
+		VisibleButton:SetParent("Minimap")
+		VisibleButton:SetSize(20, 20)
+		VisibleButton:ClearAllPoints()
+		VisibleButton:SetPoint("CENTER", VisibleButton.pos[1], VisibleButton.pos[2])
+		VisibleButton:SetMovable(true)
+		VisibleButton:EnableMouse(true)
+		VisibleButton:RegisterForClicks("LeftButton", "RightButton")
+		VisibleButton:RegisterForDrag("LeftButton")
+		VisibleButton:Enable()
+		
+		local VisibleBG = VisibleButton:CreateTexture()
+		VisibleBG:SetTexture(0.1, 0.1, 0.1, 0.7)
+		VisibleBG:SetAllPoints()
+		VisibleButton:SetNormalTexture(VisibleBG)
+		
+		local VisiblePSH = VisibleButton:CreateTexture()
+		VisiblePSH:SetTexture(0.8, 0.8, 0.8, 0.7)
+		VisiblePSH:SetAllPoints()
+		VisibleButton:SetPushedTexture(VisiblePSH)
+		
+		VisibleButton:SetScript("OnMouseUp", function(self, button)
+			if button == "LeftButton" then
+				CheatSheet:Toggle()
+			elseif button == "RightButton" then
+				CheatSheet.SettingsFrame:Toggle()
+			end
+		end)
+		VisibleButton:SetScript("OnDragStart", function(self)
+			self.IsMoving = true
+		end)
+		VisibleButton:SetScript("OnDragStop", function(self)
+			self.IsMoving = false
+		end)
+		VisibleButton:SetScript("OnUpdate", function(self)
+			if self.IsMoving then
+				local x, y = GetCursorPosition()
+				local mmX, mmY = Minimap:GetCenter()
+				x, y = x / self:GetEffectiveScale() - mmX, y / self:GetEffectiveScale() - mmY
+				self:CalcAngle(x, y)
+				self:CalcPos(CheatSheet.Settings.VisMMRad, CheatSheet.Settings.VisMMAngle)
+				self:ClearAllPoints()
+				self:SetPoint("CENTER", self.pos[1], self.pos[2])
+			end
+		end)
 	end
 	
 	SheetFrames[1] = CreateSheetFrame(1)

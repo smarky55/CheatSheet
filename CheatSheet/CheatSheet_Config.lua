@@ -4,7 +4,7 @@ local HeightMin = 200
 
 
 -- Frame Creation
-local ConfigFrame = CreateFrame("Frame", "CSHT_ConfigFrame")
+local ConfigFrame = CheatSheet.SettingsFrame
 local TitleFrame = CreateFrame("Frame")
 local TabListFrame = CreateFrame("Frame")
 local TabScrollFrame = CreateFrame("ScrollFrame")
@@ -32,6 +32,15 @@ end
 
 do -- Frame Setup
 	do	-- Set up main container frame
+		function ConfigFrame:Toggle()
+			if ConfigFrame.Visible then
+				ConfigFrame:Hide()
+			else
+				ConfigFrame:Show()
+			end
+			ConfigFrame.Visible = not ConfigFrame.Visible
+		end		
+	
 		ConfigFrame:SetFrameStrata("MEDIUM")
 		ConfigFrame:SetPoint("CENTER")
 		ConfigFrame:SetSize(600, 400)
