@@ -1,3 +1,4 @@
 @ECHO OFF
-XCOPY .\CheatSheet "F:\Programs\World of Warcraft\Interface\AddOns\CheatSheet" /s /i /y
-XCOPY .\CheatSheet_Defaults "F:\Programs\World of Warcraft\Interface\AddOns\CheatSheet_Defaults" /s /i /y
+For /f "delims=" %%i in (WoWLoc) DO (
+XCOPY .\CheatSheet %%i\CheatSheet /s /i /y
+XCOPY .\CheatSheet_Defaults %%i\CheatSheet_Defaults /s /i /y)

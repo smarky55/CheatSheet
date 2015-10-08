@@ -1,6 +1,7 @@
 -- Local variables
 local WidthMin = 200
 local HeightMin = 200
+local Tabs = {"Sheets & Modules", "Appearence", "Misc"}
 
 
 -- Frame Creation
@@ -48,6 +49,7 @@ do -- Frame Setup
 		ConfigFrame:SetMovable(true)
 		ConfigFrame:SetResizable(true)
 		ConfigFrame:SetToplevel(true)
+		ConfigFrame:SetClampedToScreen(true)
 		
 		ConfigFrame:SetScript("OnSizeChanged", function(self, width, height)
 			self:SetWidth(math.max(width, WidthMin))
@@ -92,7 +94,41 @@ do -- Frame Setup
 		TabListFrame.FrameList = {}
 	end
 	
-	do
+	do -- Create Tabs
+		local frames = TabListFrame.FrameList
+		for index, name in ipairs(Tabs) do
+			if not frames[index] then
+				frames[index] = CreateFrame("CheckButton")
+			end
+			frames[index]:SetParent(TabListFrame)
+			frames[index]:SetPoint("BOTTOMLEFT", (-40 + 90 * index), 0)
+			frames[index]:SetSize(85, 30)
+			
+			frames[index].fontString = frames[index]:CreateFontString()
+			frames[index].fontString:SetFontObject(ConfigFont1)
+			frames[index].fontString:SetPoint("TOPLEFT", 2, -5)
+			frames[index].fontString:SetText(Tabs[index])
+			frames[index].fontString:SetWidth(frames[index]:GetWidth()-10)
+			frames[index].fontString:SetWordWrap(true)
+			
+			local background = frames[index]:CreateTexture()
+			background:SetTexture(0.1, 0.1, 0.1, 0.5)
+			background:SetAllPoints()
+			frames[index]:SetNormalTexture(background)
+			
+			local pushed = frames[index]:CreateTexture()
+			pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
+			pushed:SetAllPoints()
+			frames[index]:SetPushedTexture(pushed)
+			
+			local checked = frames[index]:CreateTexture()
+			checked:SetTexture(0.5, 0.5, 0.5, 0.5)
+			checked:SetAllPoints()
+			frames[index]:SetCheckedTexture(checked)
+		end
+	end
+	
+	do -- Set up resize button
 		ResizeButton:SetParent(ConfigFrame)
 		ResizeButton:SetPoint("BOTTOMRIGHT")
 		ResizeButton:SetSize(10, 10)
@@ -116,5 +152,28 @@ do -- Frame Setup
 		pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
 		pushed:SetAllPoints()
 		ResizeButton:SetPushedTexture(pushed)
+	end
+	
+	do -- Set up close button
+		CloseButton:SetParent(ConfigFrame)
+		CloseButton:SetPoint("TOPRIGHT")
+		CloseButton:SetPoint("BOTTOMLEFT", ConfigFrame, "TOPRIGHT", -16, -16)
+		CloseButton:EnableMouse(true)
+		CloseButton:RegisterForClicks("LeftButton")
+		CloseButton:Enable()
+		
+		CloseButton:SetScript("OnMouseUp", function(self, button)
+			self:GetParent():Hide()
+		end)
+		
+		local background = CloseButton:CreateTexture()
+		background:SetTexture(0.5, 0.1, 0.1, 0.5)
+		background:SetAllPoints()
+		CloseButton:SetNormalTexture(background)
+		
+		local pushed = CloseButton:CreateTexture()
+		pushed:SetTexture(0.8, 0.3, 0.3, 0.5)
+		pushed:SetAllPoints()
+		CloseButton:SetPushedTexture(pushed)
 	end
 end

@@ -482,7 +482,7 @@ do
 		end
 		function VisibleButton:CalcAngle(xPos, yPos)
 			CheatSheet.Settings.VisMMAngle = math.atan2(xPos, yPos)
-			print(CheatSheet.Settings.VisMMAngle)
+			-- print(CheatSheet.Settings.VisMMAngle)
 		end
 		VisibleButton.pos = {}
 		VisibleButton.IsMoving = false
