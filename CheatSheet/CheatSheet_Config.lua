@@ -91,6 +91,16 @@ do -- Frame Setup
 		TabListFrame:SetPoint("TOPLEFT", 0, -16)
 		TabListFrame:SetPoint("BOTTOMRIGHT", ConfigFrame, "TOPRIGHT" ,0 ,-46)
 		
+		function TabListFrame:Select(index)
+			for num, frame in ipairs(self.FrameList) do
+				if num == index then
+					self.FrameList[num]:Select(true)
+				else
+					self.FrameList[num]:Select(false)
+				end
+			end
+		end
+		
 		TabListFrame.FrameList = {}
 	end
 	
@@ -98,34 +108,50 @@ do -- Frame Setup
 		local frames = TabListFrame.FrameList
 		for index, name in ipairs(Tabs) do
 			if not frames[index] then
-				frames[index] = CreateFrame("CheckButton")
+				frames[index] = CreateFrame("Button")
 			end
-			frames[index]:SetParent(TabListFrame)
-			frames[index]:SetPoint("BOTTOMLEFT", (-40 + 90 * index), 0)
-			frames[index]:SetSize(85, 30)
+			local frame = frames[index]
+			frame.isSelected = false
+			frame.index = index
 			
-			frames[index].fontString = frames[index]:CreateFontString()
-			frames[index].fontString:SetFontObject(ConfigFont1)
-			frames[index].fontString:SetPoint("TOPLEFT", 2, -5)
-			frames[index].fontString:SetText(Tabs[index])
-			frames[index].fontString:SetWidth(frames[index]:GetWidth()-10)
-			frames[index].fontString:SetWordWrap(true)
+			function frame:Select(enable)
+				if enable then
+					self:SetNormalTexture(self.selected)
+				else
+					self:SetNormalTexture(self.background)
+				end
+			end
 			
-			local background = frames[index]:CreateTexture()
-			background:SetTexture(0.1, 0.1, 0.1, 0.5)
-			background:SetAllPoints()
-			frames[index]:SetNormalTexture(background)
+			frame:SetParent(TabListFrame)
+			frame:SetPoint("BOTTOMLEFT", (-80 + 90 * index), 0)
+			frame:SetSize(85, 30)
 			
-			local pushed = frames[index]:CreateTexture()
-			pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
-			pushed:SetAllPoints()
-			frames[index]:SetPushedTexture(pushed)
+			frame.fontString = frame:CreateFontString()
+			frame.fontString:SetFontObject(ConfigFont1)
+			frame.fontString:SetPoint("TOPLEFT", 2, -5)
+			frame.fontString:SetText(Tabs[index])
+			frame.fontString:SetWidth(frame:GetWidth()-10)
+			frame.fontString:SetWordWrap(true)
 			
-			local checked = frames[index]:CreateTexture()
-			checked:SetTexture(0.5, 0.5, 0.5, 0.5)
-			checked:SetAllPoints()
-			frames[index]:SetCheckedTexture(checked)
+			frame:SetScript("OnMouseUp", function(self, button)
+				self:GetParent():Select(self.index)
+			end)
+			
+			frame.background = frame:CreateTexture()
+			frame.background:SetTexture(0.1, 0.1, 0.1, 0.5)
+			frame.background:SetAllPoints()
+			frame:SetNormalTexture(frame.background)
+			
+			frame.pushed = frame:CreateTexture()
+			frame.pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
+			frame.pushed:SetAllPoints()
+			frame:SetPushedTexture(frame.pushed)
+			
+			frame.selected = frame:CreateTexture()
+			frame.selected:SetTexture(0.5, 0.5, 0.5, 0.5)
+			frame.selected:SetAllPoints()
 		end
+		TabListFrame:Select(1)
 	end
 	
 	do -- Set up resize button
