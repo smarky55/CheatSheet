@@ -41,11 +41,8 @@ local forceReload = true
 
 --Object Definition--
 CheatSheet.Modules = {}
-CheatSheet.Settings = {}
+CheatSheet.Settings = CSHT_DefaultSettings
 CheatSheet.SettingsFrame = CreateFrame("Frame", "CSHT_ConfigFrame")
-CheatSheet.SettingsFrame.Visible = false
-CheatSheet.Visible = true
-
 
 -- Allows external modules to make themselves known to this core addon, allowing them to be used in game
 function CheatSheet:Register(module)
@@ -61,12 +58,12 @@ function CheatSheet:Hide()
 end
 
 function CheatSheet:Toggle()
-	if CheatSheet.Visible then
+	if CheatSheet.Settings.core.MainVisible.VAL then
 		CheatSheet:Hide()
 	else
 		CheatSheet:Show()
 	end
-	CheatSheet.Visible = not CheatSheet.Visible
+	CheatSheet.Settings.core.MainVisible.VAL = not CheatSheet.Settings.core.MainVisible.VAL
 end
 
 function CheatSheet:LoadSettings()
@@ -75,22 +72,13 @@ function CheatSheet:LoadSettings()
 	else
 		CSHT_Settings = CheatSheet.Settings
 	end
-	ScrollFrame:UpdatePos(CheatSheet.Settings.MainFramePos)
-	ScrollFrame:UpdateDim(CheatSheet.Settings.MainFrameDim)
+	ScrollFrame:UpdatePos(CheatSheet.Settings.core.MainFramePos.VAL)
+	ScrollFrame:UpdateDim(CheatSheet.Settings.core.MainFrameDim.VAL)
 end
 
 function CheatSheet:SaveSettings()
 	CSHT_Settings = CheatSheet.Settings
 end
-
---Default Settings
-CheatSheet.Settings.CollateNotes = true
-CheatSheet.Settings.SortMethod = "DescSpecific"
-CheatSheet.Settings.MainFramePos = {GetScreenWidth()/2, GetScreenHeight()/2}
-CheatSheet.Settings.MainFrameDim = {160, 200}
-CheatSheet.Settings.ConfigFramePos = {GetScreenWidth()/2, GetScreenHeight()/2}
-CheatSheet.Settings.VisMMRad = 80
-CheatSheet.Settings.VisMMAngle = -2.2
 
 
 --General Functions--
@@ -234,7 +222,7 @@ function loadSheets(zone, subzone, class, spec, role)
 	end
 	
 	-- Sort sheets table
-	table.sort(Sheets, SortMethod[CheatSheet.Settings.SortMethod])
+	table.sort(Sheets, SortMethod[CheatSheet.Settings.sheet.SortMethod.VAL])
 	
 	-- Debug: Print loaded sheets
 	-- for key, sheet in ipairs(Sheets) do
@@ -273,7 +261,7 @@ function UpdateSheetFrames()
 	local index = 0
 	local offset = 5
 	for key, sheet in ipairs(Sheets)do
-		if CheatSheet.Settings.CollateNotes then
+		if CheatSheet.Settings.sheet.CollateNotes.VAL then
 			index = index + 1
 			if not SheetFrames[index] then
 				SheetFrames[index] = CreateSheetFrame(index)
@@ -335,6 +323,8 @@ do -- Fonts
 	end
 end
 
+
+
 --GUI Frames--
 do
 	do -- Setup Main Frame
@@ -367,8 +357,8 @@ do
 		end)
 		ScrollFrame:SetScript("OnDragStop", function(self)
 			self:StopMovingOrSizing()
-			CheatSheet.Settings.MainFramePos[1] = ScrollFrame:GetLeft()
-			CheatSheet.Settings.MainFramePos[2] = ScrollFrame:GetBottom()			
+			CheatSheet.Settings.core.MainFramePos.VAL[1] = ScrollFrame:GetLeft()
+			CheatSheet.Settings.core.MainFramePos.VAL[2] = ScrollFrame:GetBottom()			
 		end)
 		ScrollFrame:SetScript("OnMouseWheel", function(self, delta)
 			local scroll = math.max(math.min(self:GetVerticalScroll() + (-10 * delta), (MainFrame:GetHeight() - ScrollFrame:GetHeight())) , 0)
@@ -385,6 +375,8 @@ do
 				self:SetHeight(height)
 			end
 			self:UpdateFrameSizes(width, height)
+			CheatSheet.Settings.core.MainFrameDim.VAL[1] = width
+			CheatSheet.Settings.core.MainFrameDim.VAL[2] = height
 		end)
 		
 		local background = ScrollFrame:CreateTexture(nil, "BACKGROUND")
@@ -412,6 +404,7 @@ do
 		end
 		
 		function ScrollFrame:UpdatePos(pos)
+			self:ClearAllPoints()
 			self:SetPoint("CENTER", pos[1], pos[2])
 		end
 		
@@ -481,12 +474,12 @@ do
 			self.pos[2] = radius * math.cos(angle)
 		end
 		function VisibleButton:CalcAngle(xPos, yPos)
-			CheatSheet.Settings.VisMMAngle = math.atan2(xPos, yPos)
+			CheatSheet.Settings.core.VisMMAngle.VAL = math.atan2(xPos, yPos)
 			-- print(CheatSheet.Settings.VisMMAngle)
 		end
 		VisibleButton.pos = {}
 		VisibleButton.IsMoving = false
-		VisibleButton:CalcPos(CheatSheet.Settings.VisMMRad, CheatSheet.Settings.VisMMAngle)
+		VisibleButton:CalcPos(CheatSheet.Settings.core.VisMMRad.VAL, CheatSheet.Settings.core.VisMMAngle.VAL)
 		VisibleButton:SetFrameStrata("MEDIUM")
 		VisibleButton:SetParent("Minimap")
 		VisibleButton:SetSize(20, 20)
@@ -527,7 +520,7 @@ do
 				local mmX, mmY = Minimap:GetCenter()
 				x, y = x / self:GetEffectiveScale() - mmX, y / self:GetEffectiveScale() - mmY
 				self:CalcAngle(x, y)
-				self:CalcPos(CheatSheet.Settings.VisMMRad, CheatSheet.Settings.VisMMAngle)
+				self:CalcPos(CheatSheet.Settings.core.VisMMRad.VAL, CheatSheet.Settings.core.VisMMAngle.VAL)
 				self:ClearAllPoints()
 				self:SetPoint("CENTER", self.pos[1], self.pos[2])
 			end

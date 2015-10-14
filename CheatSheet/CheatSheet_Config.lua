@@ -1,3 +1,19 @@
+-- CheatSheet: An addon for World of Warcraft that provides context sensitive info or guidlines
+-- Copyright (C) 2015 Sam "smarky55" Kingdon
+
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 -- Local variables
 local WidthMin = 200
 local HeightMin = 200
@@ -34,12 +50,13 @@ end
 do -- Frame Setup
 	do	-- Set up main container frame
 		function ConfigFrame:Toggle()
-			if ConfigFrame.Visible then
+			local visible = CheatSheet.Settings.core.ConfigVisible.VAL
+			if visible then
 				ConfigFrame:Hide()
 			else
 				ConfigFrame:Show()
 			end
-			ConfigFrame.Visible = not ConfigFrame.Visible
+			CheatSheet.Settings.core.ConfigVisible.VAL = not visible
 		end		
 	
 		ConfigFrame:SetFrameStrata("MEDIUM")
@@ -50,6 +67,7 @@ do -- Frame Setup
 		ConfigFrame:SetResizable(true)
 		ConfigFrame:SetToplevel(true)
 		ConfigFrame:SetClampedToScreen(true)
+		-- ConfigFrame:Hide() 
 		
 		ConfigFrame:SetScript("OnSizeChanged", function(self, width, height)
 			self:SetWidth(math.max(width, WidthMin))
@@ -61,7 +79,7 @@ do -- Frame Setup
 		background:SetAllPoints()
 	end
 	
-	do
+	do -- Set up title frame
 		TitleFrame:SetParent(ConfigFrame)
 		TitleFrame:SetPoint("TOPLEFT")
 		TitleFrame:SetPoint("BOTTOMRIGHT", ConfigFrame, "TOPRIGHT", -16, -16)
@@ -152,6 +170,44 @@ do -- Frame Setup
 			frame.selected:SetAllPoints()
 		end
 		TabListFrame:Select(1)
+	end
+	
+	do -- Create Tab main frame
+		function CreateOptionFrame()
+		
+		end
+		
+		function TabMainFrame:UpdateOptions(options)
+			for key, option in ipairs(options) do
+				if not self.OptionFrames[key] then
+					self.OptionFrames[key] = CreateOptionFrame()
+				end
+			end
+		end
+		
+		TabMainFrame.OptionFrames = {}
+	
+		TabMainFrame:SetFrameStrata("MEDIUM")
+		TabMainFrame:SetPoint("TOPLEFT")
+		TabMainFrame:SetSize(600, 800)
+		TabMainFrame:SetMovable(true)
+	end
+	
+	do -- Set up tab scroll frame
+		TabScrollFrame:SetFrameStrata("MEDIUM")
+		TabScrollFrame:SetParent(ConfigFrame)
+		TabScrollFrame:SetPoint("TOPLEFT", 0, -46)
+		TabScrollFrame:SetPoint("BOTTOMRIGHT", -10)
+		TabScrollFrame:SetMovable(true)
+		TabScrollFrame:EnableMouse(true)
+		TabScrollFrame:EnableMouseWheel(true)
+		TabScrollFrame:SetScrollChild(TabMainFrame)
+		
+		TabScrollFrame:SetScript("OnMouseWheel", function(self, delta)
+			local scroll = math.max(math.min(self:GetVerticalScroll() + (10 * delta), TabMainFrame:GetHeight() - TabScrollFrame:GetHeight()), 0)
+			self:SetVerticalScroll(scroll)
+			-- Set slider
+		end)
 	end
 	
 	do -- Set up resize button
