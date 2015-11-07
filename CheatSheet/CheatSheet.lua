@@ -351,6 +351,7 @@ do
 		ScrollFrame:SetScrollChild(MainFrame)
 		ScrollFrame:SetResizable(true)
 		ScrollFrame:SetToplevel(true)
+		-- ScrollFrame:SetDontSavePositon(true)
 		
 		ScrollFrame:SetScript("OnDragStart", function(self)
 			self:StartMoving()

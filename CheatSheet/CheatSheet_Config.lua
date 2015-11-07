@@ -17,7 +17,8 @@
 -- Local variables
 local WidthMin = 200
 local HeightMin = 200
-local Tabs = {"Sheets & Modules", "Appearence", "Misc"}
+local Tabs = {"Sheets & Modules", "Appearance", "Misc"}
+local optionMap = {Sheets = "sheet", Appearance = "appearance", Misc = "misc"}
 
 
 -- Frame Creation
@@ -67,6 +68,7 @@ do -- Frame Setup
 		ConfigFrame:SetResizable(true)
 		ConfigFrame:SetToplevel(true)
 		ConfigFrame:SetClampedToScreen(true)
+		-- ConfigFrame:SetDontSavePosition(true)
 		-- ConfigFrame:Hide() 
 		
 		ConfigFrame:SetScript("OnSizeChanged", function(self, width, height)
@@ -110,13 +112,17 @@ do -- Frame Setup
 		TabListFrame:SetPoint("BOTTOMRIGHT", ConfigFrame, "TOPRIGHT" ,0 ,-46)
 		
 		function TabListFrame:Select(index)
+			local name = ""
 			for num, frame in ipairs(self.FrameList) do
 				if num == index then
 					self.FrameList[num]:Select(true)
+					name = string.match(self.FrameList[num].fontString:GetText(), "(%S+)")
 				else
 					self.FrameList[num]:Select(false)
 				end
 			end
+			local options = CheatSheet.Settings[optionMap[name]]
+			TabMainFrame:UpdateOptions(options)
 		end
 		
 		TabListFrame.FrameList = {}
@@ -135,8 +141,10 @@ do -- Frame Setup
 			function frame:Select(enable)
 				if enable then
 					self:SetNormalTexture(self.selected)
+					self.isSelected = true
 				else
 					self:SetNormalTexture(self.background)
+					self.isSelected = false
 				end
 			end
 			
@@ -158,7 +166,6 @@ do -- Frame Setup
 			frame.background = frame:CreateTexture()
 			frame.background:SetTexture(0.1, 0.1, 0.1, 0.5)
 			frame.background:SetAllPoints()
-			frame:SetNormalTexture(frame.background)
 			
 			frame.pushed = frame:CreateTexture()
 			frame.pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
@@ -168,20 +175,42 @@ do -- Frame Setup
 			frame.selected = frame:CreateTexture()
 			frame.selected:SetTexture(0.5, 0.5, 0.5, 0.5)
 			frame.selected:SetAllPoints()
+			
+			frame:Select(frame.isSelected)
 		end
-		TabListFrame:Select(1)
 	end
 	
 	do -- Create Tab main frame
-		function CreateOptionFrame()
-		
+		function TabMainFrame:CreateOptionFrame(option)
+			local frame = CreateFrame("Frame")
+			frame:SetParent(self)
+			frame:SetPoint("TOPLEFT")
+			frame:SetWidth(self:GetWidth() - 10)
+			frame:SetHeight(40)
+			
+			background = frame:CreateTexture()
+			background:SetTexture(0.2, 0.2, 0.2, 0.5)
+			background:SetAllPoints()
+			
+			return frame
 		end
 		
 		function TabMainFrame:UpdateOptions(options)
-			for key, option in ipairs(options) do
+			local index = 1
+			local offset = 10
+			for key, option in pairs(options) do
 				if not self.OptionFrames[key] then
-					self.OptionFrames[key] = CreateOptionFrame()
+					self.OptionFrames[key] = TabMainFrame:CreateOptionFrame(option)
+					table.setn(self.OptionFrames, 1 + table.getn(self.OptionFrames))
 				end
+				self.OptionFrames[key]:SetPoint("TOPLEFT", 5, -offset)
+				offset = offset + 10 + self.OptionFrames[key]:GetHeight()
+				index = index + 1
+			end
+			print(index, table.getn(self.OptionFrames))
+			while index <= #(self.OptionFrames) do
+				self.OptionFrames[index]:Hide()
+				self.OptionFrames[index]:SetPoint("TOPLEFT")
 			end
 		end
 		
@@ -259,3 +288,7 @@ do -- Frame Setup
 		CloseButton:SetPushedTexture(pushed)
 	end
 end
+
+TabListFrame:Select(3)
+TabListFrame:Select(2)
+TabListFrame:Select(1)
