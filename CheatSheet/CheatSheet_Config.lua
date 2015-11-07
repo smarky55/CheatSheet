@@ -77,7 +77,7 @@ do -- Frame Setup
 		end)
 		
 		local background = ConfigFrame:CreateTexture(nil, "BACKGROUND")
-		background:SetTexture(0.4, 0.4, 0.4, 0.3)
+		background:SetTexture(0.4, 0.4, 0.4, 0.5)
 		background:SetAllPoints()
 	end
 	
@@ -122,7 +122,7 @@ do -- Frame Setup
 				end
 			end
 			local options = CheatSheet.Settings[optionMap[name]]
-			TabMainFrame:UpdateOptions(options)
+			TabMainFrame:UpdateOptions(optionMap[name], options)
 		end
 		
 		TabListFrame.FrameList = {}
@@ -183,59 +183,112 @@ do -- Frame Setup
 	do -- Create Tab main frame
 		function TabMainFrame:CreateOptionFrame(option)
 			local frame = CreateFrame("Frame")
+			
 			frame:SetParent(self)
 			frame:SetPoint("TOPLEFT")
 			frame:SetWidth(self:GetWidth() - 10)
 			frame:SetHeight(40)
 			
+			frame.nameString = frame:CreateFontString()
+			frame.nameString:SetFontObject(ConfigFont1)
+			frame.nameString:SetPoint("TOPLEFT", 2, -2)
+			
+			
 			background = frame:CreateTexture()
 			background:SetTexture(0.2, 0.2, 0.2, 0.5)
 			background:SetAllPoints()
 			
+			self:UpdateOptionFrame(frame, option)
 			return frame
 		end
 		
-		function TabMainFrame:UpdateOptions(options)
+		function TabMainFrame:UpdateOptionFrame(frame, option)
+			frame.name = option.NAME
+			frame.type = option.TYPE
+			frame.value = option.VALUE
+			frame.min = option.MIN
+			frame.max = option.MAX
+			
+			frame.frames = {}
+			
+			frame.nameString:SetText(frame.name)
+			frame.nameString:SetWidth(frame:GetWidth())
+			frame.nameString:SetWidth(frame.nameString:GetStringWidth())
+			frame.nameString:SetHeight(frame.nameString:GetStringHeight())
+			local offset = 5 + frame.nameString:GetStringHeight()
 			local index = 1
-			local offset = 10
-			for key, option in pairs(options) do
-				if not self.OptionFrames[key] then
-					self.OptionFrames[key] = TabMainFrame:CreateOptionFrame(option)
-					table.setn(self.OptionFrames, 1 + table.getn(self.OptionFrames))
-				end
-				self.OptionFrames[key]:SetPoint("TOPLEFT", 5, -offset)
-				offset = offset + 10 + self.OptionFrames[key]:GetHeight()
-				index = index + 1
+			if option.TYPE == "bool" then
+				frame.frames[1] = CreateFrame("CheckButton")
+				index = 2
+			else
+			
 			end
-			print(index, table.getn(self.OptionFrames))
-			while index <= #(self.OptionFrames) do
-				self.OptionFrames[index]:Hide()
-				self.OptionFrames[index]:SetPoint("TOPLEFT")
+			while index <= #frame.frames do
+				frame.frames[index]:Hide()
+				index = index + 1
 			end
 		end
 		
+		function TabMainFrame:UpdateOptions(category, options)
+			self.Category = category
+			local index = 1
+			local offset = 10
+			for key, option in pairs(options) do
+				if not self.OptionFrames[index] then
+					self.OptionFrames[index] = TabMainFrame:CreateOptionFrame(option)
+					self.NumFrames = self.NumFrames + 1
+				else
+					self:UpdateOptionFrame(self.OptionFrames[index], option)
+				end				
+				self.OptionFrames[index]:Show()
+				self.OptionFrames[index]:SetPoint("TOPLEFT", 5, -offset)
+				offset = offset + 10 + self.OptionFrames[index]:GetHeight()
+				index = index + 1
+			end
+			while index <= self.NumFrames do
+				self.OptionFrames[index]:Hide()
+				self.OptionFrames[index]:SetPoint("TOPLEFT")
+				index = index + 1
+			end
+			self:SetHeight(offset)
+		end
+		
 		TabMainFrame.OptionFrames = {}
+		TabMainFrame.NumFrames = 0
+		TabMainFrame.Category = ""
 	
 		TabMainFrame:SetFrameStrata("MEDIUM")
 		TabMainFrame:SetPoint("TOPLEFT")
 		TabMainFrame:SetSize(600, 800)
 		TabMainFrame:SetMovable(true)
+		
+		TabMainFrame:SetScript("OnSizeChanged", function(self, width, height)
+			for key, frame in ipairs(self.OptionFrames) do
+				frame:SetWidth(width - 10)
+			end
+		end)
 	end
 	
 	do -- Set up tab scroll frame
 		TabScrollFrame:SetFrameStrata("MEDIUM")
 		TabScrollFrame:SetParent(ConfigFrame)
 		TabScrollFrame:SetPoint("TOPLEFT", 0, -46)
-		TabScrollFrame:SetPoint("BOTTOMRIGHT", -10)
+		TabScrollFrame:SetPoint("BOTTOMRIGHT", -10, 0)
 		TabScrollFrame:SetMovable(true)
 		TabScrollFrame:EnableMouse(true)
 		TabScrollFrame:EnableMouseWheel(true)
 		TabScrollFrame:SetScrollChild(TabMainFrame)
 		
 		TabScrollFrame:SetScript("OnMouseWheel", function(self, delta)
-			local scroll = math.max(math.min(self:GetVerticalScroll() + (10 * delta), TabMainFrame:GetHeight() - TabScrollFrame:GetHeight()), 0)
+			local scroll = math.max(math.min(self:GetVerticalScroll() + (-10 * delta), TabMainFrame:GetHeight() - TabScrollFrame:GetHeight()), 0)
 			self:SetVerticalScroll(scroll)
 			-- Set slider
+		end)
+		TabScrollFrame:SetScript("OnSizeChanged", function(self, width, height)
+			local scroll = math.max(math.min(self:GetVerticalScroll(), TabMainFrame:GetHeight() - TabScrollFrame:GetHeight()), 0)
+			self:SetVerticalScroll(scroll)
+			-- Set slider
+			TabMainFrame:SetWidth(width)
 		end)
 	end
 	

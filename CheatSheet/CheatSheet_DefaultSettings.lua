@@ -21,38 +21,44 @@ settings.sheet = {}
 settings.appearance = {}
 settings.misc = {}
 
-local function AddOption(category, name, typ, value)
+local function AddOption(category, name, friendlyName, typ, value, MAX, MIN)
+	local limit = {int = true, float = true, vec2 = true}
 	local option = {}
+	if friendlyName ~= "" then
+		option.NAME = friendlyName
+	else
+		option.NAME = name
+	end
 	option.TYPE = typ
 	option.VAL = value
-	
+	if limit[typ] then
+		option.MAX = MAX
+		option.MIN = MIN
+	end
 	settings[category][name] = option
 end
 
-AddOption("core", "test", "bool", true)
+-- Add Testing Settings
+AddOption("misc", "testBool", "", "bool", true)
+AddOption("misc", "testInt", "", "int", 10, 50, 0)
+AddOption("misc", "testFloat", "", "float", 2.5, 20, -20)
+AddOption("misc", "testString", "", "string", "Test String")
+AddOption("misc", "testVec2", "", "vec2", {20, 30}, {100, 100}, {0, 0})
 
 -- Add Core Settings
-AddOption("core", "MainFramePos", "vec2", {GetScreenWidth()/2, GetScreenHeight()/2})
-AddOption("core", "MainFrameDim", "vec2", {160, 200})
-AddOption("core", "ConfigFramePos", "vec2", {GetScreenWidth()/2, GetScreenHeight()/2})
-AddOption("core", "ConfigFrameDim", "vec2", {600, 400})
+AddOption("core", "MainFramePos", "", "vec2", {GetScreenWidth()/2, GetScreenHeight()/2})
+AddOption("core", "MainFrameDim", "", "vec2", {160, 200})
+AddOption("core", "ConfigFramePos", "", "vec2", {GetScreenWidth()/2, GetScreenHeight()/2})
+AddOption("core", "ConfigFrameDim", "", "vec2", {600, 400})
 
-AddOption("core", "VisMMRad", "int", 80)
+AddOption("core", "VisMMRad", "", "int", 80)
 
-AddOption("core", "VisMMAngle", "float", -2.2)
+AddOption("core", "VisMMAngle", "", "float", -2.2)
 
-AddOption("core", "ConfigVisible", "bool", false)
-AddOption("core", "MainVisible", "bool", true)
+AddOption("core", "ConfigVisible", "", "bool", false)
+AddOption("core", "MainVisible", "", "bool", true)
 
 -- Add sheet settings
-AddOption("sheet", "CollateNotes", "bool", true)
+AddOption("sheet", "CollateNotes", "Collate Notes", "bool", true)
 
-AddOption("sheet", "SortMethod", "string", "DescSpecific")
-
--- print("HELLO")
--- for k, v in pairs(settings) do
-	-- print(k)
-	-- for k1, v1 in pairs(v) do
-		-- print(k1, v1[1])
-	-- end
--- end
+AddOption("sheet", "SortMethod", "Sorting Method", "string", "DescSpecific")
