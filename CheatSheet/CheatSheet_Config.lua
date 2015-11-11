@@ -202,6 +202,50 @@ do -- Frame Setup
 			return frame
 		end
 		
+		function TabMainFrame:CreateBoolFrame(parent, option)
+			local container = CreateFrame("Frame")
+			container:SetParent(parent)
+			container:SetPoint("TOPLEFT", 2, -15)
+			container:SetPoint("BOTTOMRIGHT")
+			container.VAL = option.VAL
+			
+			container.checkButton = CreateFrame("CheckButton")
+			local button = container.checkButton
+			button:SetParent(container)
+			button:SetPoint("TOPLEFT", 10, 0)
+			button:SetSize(20, 20)
+			
+			button.unchecked = button:CreateTexture()
+			button.unchecked:SetTexture(0.8, 0.5, 0.5, 0.5)
+			button.unchecked:SetAllPoints()
+			button:SetNormalTexture(button.unchecked)
+			
+			button.checked = button:CreateTexture()
+			button.checked:SetTexture(0.5, 0.8, 0.5, 0.5)
+			button.checked:SetAllPoints()
+			button:SetCheckedTexture(button.checked)
+			
+			button:SetChecked(container.VAL)
+			
+			button:SetScript("OnClick", function(self, button, down)
+				self:GetParent().VAL = self:GetChecked()
+			end)
+			
+			return container
+		end
+		
+		function TabMainFrame:CreateIntFrame(parent, option)
+			local container = CreateFrame("Frame")
+			container:SetParent(parent)
+			container:SetPoint("TOPLEFT", 2, -15)
+			container:SetPoint("BOTTOMRIGHT")
+			container.VAL = option.VAL
+			
+			
+			
+			return container
+		end
+		
 		function TabMainFrame:UpdateOptionFrame(frame, option)
 			frame.name = option.NAME
 			frame.type = option.TYPE
@@ -209,23 +253,21 @@ do -- Frame Setup
 			frame.min = option.MIN
 			frame.max = option.MAX
 			
-			frame.frames = {}
+			
 			
 			frame.nameString:SetText(frame.name)
 			frame.nameString:SetWidth(frame:GetWidth())
 			frame.nameString:SetWidth(frame.nameString:GetStringWidth())
 			frame.nameString:SetHeight(frame.nameString:GetStringHeight())
-			local offset = 5 + frame.nameString:GetStringHeight()
-			local index = 1
-			if option.TYPE == "bool" then
-				frame.frames[1] = CreateFrame("CheckButton")
-				index = 2
-			else
 			
+			if frame.optionFrame then
+				frame.optionFrame:Hide()
+				frame.optionFrame = nil
 			end
-			while index <= #frame.frames do
-				frame.frames[index]:Hide()
-				index = index + 1
+			if option.TYPE == "bool" then
+				frame.optionFrame = self:CreateBoolFrame(frame, option)
+			elseif option.TYPE == "int" then
+				frame.optionFrame = self:CreateIntFrame(frame, option)
 			end
 		end
 		

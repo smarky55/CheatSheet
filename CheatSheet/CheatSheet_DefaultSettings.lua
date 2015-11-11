@@ -21,7 +21,7 @@ settings.sheet = {}
 settings.appearance = {}
 settings.misc = {}
 
-local function AddOption(category, name, friendlyName, typ, value, MAX, MIN)
+local function AddOption(category, name, friendlyName, typ, value, arg1, arg2)
 	local limit = {int = true, float = true, vec2 = true}
 	local option = {}
 	if friendlyName ~= "" then
@@ -32,14 +32,17 @@ local function AddOption(category, name, friendlyName, typ, value, MAX, MIN)
 	option.TYPE = typ
 	option.VAL = value
 	if limit[typ] then
-		option.MAX = MAX
-		option.MIN = MIN
+		option.MAX = arg1
+		option.MIN = arg2
+	end
+	if typ = "multi" then
+		option.CHOICES = arg1
 	end
 	settings[category][name] = option
 end
 
 -- Add Testing Settings
-AddOption("misc", "testBool", "", "bool", true)
+AddOption("misc", "testBool", "", "bool", false)
 AddOption("misc", "testInt", "", "int", 10, 50, 0)
 AddOption("misc", "testFloat", "", "float", 2.5, 20, -20)
 AddOption("misc", "testString", "", "string", "Test String")
@@ -61,4 +64,5 @@ AddOption("core", "MainVisible", "", "bool", true)
 -- Add sheet settings
 AddOption("sheet", "CollateNotes", "Collate Notes", "bool", true)
 
-AddOption("sheet", "SortMethod", "Sorting Method", "string", "DescSpecific")
+AddOption("sheet", "SortMethod", "Sorting Method", "multi", "DescSpecific", 
+			{"DescSpecific", "AscSpecific", "DescAlphabet", "AscAlphabet"})
