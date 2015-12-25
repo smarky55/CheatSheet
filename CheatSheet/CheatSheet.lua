@@ -24,6 +24,8 @@ local SortMethod = {}
 local EventFrame = CreateFrame("Frame")
 local MainFrame = CreateFrame("Frame", "CSHT_MainFrame")
 local ScrollFrame = CreateFrame("ScrollFrame", "CSHT_ScrollFrame")
+local ScrollUpButton = CreateFrame("Button", "CSHT_ScrlUpButton")
+local ScrollDownButton = CreateFrame("Button", "CSHT_ScrlDnButton")
 local SlideFrame = CreateFrame("Slider", "CSHT_SlideFrame")
 local ResizeButton = CreateFrame("Button", "CSHT_ResizeButton")
 local MenuFrame = CreateFrame("Frame", "CSHT_MenuFrame")
@@ -36,7 +38,7 @@ local SheetFrames = {}
 local FrameTexts = {}
 local HeightMin = 100
 local WidthMin = 100
-local forceReload = true
+local forceReload = false
 
 
 --Object Definition--
@@ -401,7 +403,7 @@ do
 			MainFrame:SetWidth(Width - 10)
 			UpdateSheetFrames()
 			SlideFrame:SetMinMaxValues(0, math.max(MainFrame:GetHeight() - Height, 0))
-			SlideFrame:SetHeight(Height)
+			SlideFrame:SetHeight(Height - 30)
 		end
 		
 		function ScrollFrame:UpdatePos(pos)
@@ -414,11 +416,74 @@ do
 		end
 	end
 	
+	do -- Set up scroll up button
+		ScrollUpButton:SetFrameStrata("MEDIUM")
+		ScrollUpButton:SetParent(ScrollFrame)
+		ScrollUpButton:SetPoint("TOPRIGHT")
+		ScrollUpButton:SetSize(10, 10)
+		ScrollUpButton:EnableMouse(true)
+		ScrollUpButton:RegisterForClicks("LeftButton")
+		ScrollUpButton:Enable()
+		
+		ScrollUpButton:SetScript("OnMouseUp", function(self, button)
+			local scroll = math.max(math.min(ScrollFrame:GetVerticalScroll() + (-10), (MainFrame:GetHeight() - ScrollFrame:GetHeight())) , 0)
+			ScrollFrame:SetVerticalScroll(scroll)
+			SlideFrame:SetValue(scroll)
+		end)
+		
+		local background = ScrollUpButton:CreateTexture()
+		background:SetTexture(0.1, 0.1, 0.1, 0.5)
+		background:SetAllPoints()
+		ScrollUpButton:SetNormalTexture(background)
+		
+		local highlight = ScrollUpButton:CreateTexture()
+		highlight:SetTexture(0.5, 0.5, 0.5, 1)
+		highlight:SetAllPoints()
+		ScrollUpButton:SetHighlightTexture(highlight)
+		
+		local pushed = ScrollUpButton:CreateTexture()
+		pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
+		pushed:SetAllPoints()
+		ScrollUpButton:SetPushedTexture(pushed)
+		
+	end
+	
+	do
+		ScrollDownButton:SetFrameStrata("MEDIUM")
+		ScrollDownButton:SetParent(ScrollFrame)
+		ScrollDownButton:SetPoint("BOTTOMRIGHT", 0, 10)
+		ScrollDownButton:SetSize(10, 10)
+		ScrollDownButton:EnableMouse(true)
+		ScrollDownButton:RegisterForClicks("LeftButton")
+		ScrollDownButton:Enable()
+		
+		ScrollDownButton:SetScript("OnMouseUp", function(self, button)
+			local scroll = math.max(math.min(ScrollFrame:GetVerticalScroll() + (10), (MainFrame:GetHeight() - ScrollFrame:GetHeight())) , 0)
+			ScrollFrame:SetVerticalScroll(scroll)
+			SlideFrame:SetValue(scroll)
+		end)
+		
+		local background = ScrollDownButton:CreateTexture()
+		background:SetTexture(0.1, 0.1, 0.1, 0.5)
+		background:SetAllPoints()
+		ScrollDownButton:SetNormalTexture(background)
+		
+		local highlight = ScrollDownButton:CreateTexture()
+		highlight:SetTexture(0.5, 0.5, 0.5, 1)
+		highlight:SetAllPoints()
+		ScrollDownButton:SetHighlightTexture(highlight)
+		
+		local pushed = ScrollDownButton:CreateTexture()
+		pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
+		pushed:SetAllPoints()
+		ScrollDownButton:SetPushedTexture(pushed)
+	end
+	
 	do -- Set up vertical scroll bar
 		SlideFrame:SetFrameStrata("MEDIUM")
 		SlideFrame:SetParent(ScrollFrame)
-		SlideFrame:SetPoint("TOPRIGHT")
-		SlideFrame:SetSize(10, 200)
+		SlideFrame:SetPoint("TOPRIGHT", 0, -10)
+		SlideFrame:SetSize(10, 170)
 		SlideFrame:EnableMouse(true)
 		SlideFrame:SetMinMaxValues(0, math.max(MainFrame:GetHeight() - ScrollFrame:GetHeight(), 0))
 		SlideFrame:Enable()
@@ -440,7 +505,7 @@ do
 	do -- Set up resize button
 		ResizeButton:SetFrameStrata("MEDIUM")
 		ResizeButton:SetParent(ScrollFrame)
-		ResizeButton:SetPoint("BOTTOMRIGHT", -10, 0)
+		ResizeButton:SetPoint("BOTTOMRIGHT")
 		ResizeButton:SetSize(10, 10)
 		ResizeButton:EnableMouse(true)
 		ResizeButton:RegisterForClicks("LeftButton")
@@ -553,6 +618,7 @@ do
 			CheatSheet:SaveSettings()
 		elseif event == "ADDON_LOADED" and arg1 == "CheatSheet" then
 			CheatSheet:LoadSettings()
+			CSHT_CFG_TabL_Frame:Select(1)
 		end
 	end)
 	

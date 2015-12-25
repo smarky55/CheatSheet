@@ -24,9 +24,9 @@ local optionMap = {Sheets = "sheet", Appearance = "appearance", Misc = "misc"}
 -- Frame Creation
 local ConfigFrame = CheatSheet.SettingsFrame
 local TitleFrame = CreateFrame("Frame")
-local TabListFrame = CreateFrame("Frame")
+local TabListFrame = CreateFrame("Frame", "CSHT_CFG_TabL_Frame")
 local TabScrollFrame = CreateFrame("ScrollFrame")
-local TabMainFrame = CreateFrame("Frame")
+local TabMainFrame = CreateFrame("Frame", "CSHT_CFG_TabM_Frame")
 local SaveButton = CreateFrame("Button")
 local CloseButton = CreateFrame("Button")
 local ResizeButton = CreateFrame("Button")
@@ -166,6 +166,7 @@ do -- Frame Setup
 			frame.background = frame:CreateTexture()
 			frame.background:SetTexture(0.1, 0.1, 0.1, 0.5)
 			frame.background:SetAllPoints()
+			frame:SetNormalTexture(frame.background)
 			
 			frame.pushed = frame:CreateTexture()
 			frame.pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
@@ -175,6 +176,8 @@ do -- Frame Setup
 			frame.selected = frame:CreateTexture()
 			frame.selected:SetTexture(0.5, 0.5, 0.5, 0.5)
 			frame.selected:SetAllPoints()
+			frame.selected:Hide()
+			
 			
 			frame:Select(frame.isSelected)
 		end
@@ -207,7 +210,6 @@ do -- Frame Setup
 			container:SetParent(parent)
 			container:SetPoint("TOPLEFT", 2, -15)
 			container:SetPoint("BOTTOMRIGHT")
-			container.VAL = option.VAL
 			
 			container.checkButton = CreateFrame("CheckButton")
 			local button = container.checkButton
@@ -225,10 +227,12 @@ do -- Frame Setup
 			button.checked:SetAllPoints()
 			button:SetCheckedTexture(button.checked)
 			
-			button:SetChecked(container.VAL)
+			button:SetChecked(parent.value)
 			
 			button:SetScript("OnClick", function(self, button, down)
-				self:GetParent().VAL = self:GetChecked()
+				local parFrame = self:GetParent():GetParent()
+				parFrame.value = self:GetChecked()
+				parFrame:GetParent():UpdateOption(parFrame)
 			end)
 			
 			return container
@@ -239,23 +243,44 @@ do -- Frame Setup
 			container:SetParent(parent)
 			container:SetPoint("TOPLEFT", 2, -15)
 			container:SetPoint("BOTTOMRIGHT")
-			container.VAL = option.VAL
 			
+			container.EditBox = CreateFrame("EditBox")
+			local editBox = container.EditBox
+			editBox:SetParent(container)
+			editBox:SetPoint("TOPLEFT", 10, 0)
+			editBox:SetSize(40, 20)
+			editBox:SetNumeric(true)
+			editBox:SetMaxLetters(5)
+			editBox:SetFontObject(ConfigFont1)
+			editBox:SetAutoFocus(false)
 			
+			editBox:SetNumber(parent.value)
+			
+			editBox.background = editBox:CreateTexture()
+			editBox.background:SetTexture(0.5, 0.5, 0.5, 0.5)
+			editBox.background:SetAllPoints()
+			
+			editBox:SetScript("OnEnterPressed", function(self)
+				self:ClearFocus()
+				local parFrame = self:GetParent():GetParent()
+				parFrame.value = self:GetNumber()
+				parFrame:GetParent():UpdateOption(parFrame)				
+			end)
 			
 			return container
 		end
 		
 		function TabMainFrame:UpdateOptionFrame(frame, option)
 			frame.name = option.NAME
+			frame.fName = option.FNAME
 			frame.type = option.TYPE
-			frame.value = option.VALUE
+			frame.value = option.VAL
 			frame.min = option.MIN
 			frame.max = option.MAX
 			
 			
 			
-			frame.nameString:SetText(frame.name)
+			frame.nameString:SetText(frame.fName)
 			frame.nameString:SetWidth(frame:GetWidth())
 			frame.nameString:SetWidth(frame.nameString:GetStringWidth())
 			frame.nameString:SetHeight(frame.nameString:GetStringHeight())
@@ -264,11 +289,15 @@ do -- Frame Setup
 				frame.optionFrame:Hide()
 				frame.optionFrame = nil
 			end
-			if option.TYPE == "bool" then
+			if frame.type == "bool" then
 				frame.optionFrame = self:CreateBoolFrame(frame, option)
-			elseif option.TYPE == "int" then
+			elseif frame.type == "int" then
 				frame.optionFrame = self:CreateIntFrame(frame, option)
 			end
+		end
+		
+		function TabMainFrame:UpdateOption(frame)
+			CheatSheet.Settings[self.Category][frame.name].VAL = frame.value
 		end
 		
 		function TabMainFrame:UpdateOptions(category, options)
@@ -384,6 +413,3 @@ do -- Frame Setup
 	end
 end
 
-TabListFrame:Select(3)
-TabListFrame:Select(2)
-TabListFrame:Select(1)

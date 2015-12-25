@@ -24,10 +24,11 @@ settings.misc = {}
 local function AddOption(category, name, friendlyName, typ, value, arg1, arg2)
 	local limit = {int = true, float = true, vec2 = true}
 	local option = {}
+	option.NAME = name
 	if friendlyName ~= "" then
-		option.NAME = friendlyName
+		option.FNAME = friendlyName
 	else
-		option.NAME = name
+		option.FNAME = name
 	end
 	option.TYPE = typ
 	option.VAL = value
@@ -35,7 +36,7 @@ local function AddOption(category, name, friendlyName, typ, value, arg1, arg2)
 		option.MAX = arg1
 		option.MIN = arg2
 	end
-	if typ = "multi" then
+	if typ == "multi" then
 		option.CHOICES = arg1
 	end
 	settings[category][name] = option
