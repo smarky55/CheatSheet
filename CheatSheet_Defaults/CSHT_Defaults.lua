@@ -1,4 +1,4 @@
--- CheatSheat_Defaults: A set of default entries for CheatSheet
+-- CheatSheat_Defaults: A set of default/testing entries for CheatSheet
 -- Copyright (C) 2015 Sam "smarky55" Kingdon
 
 -- This program is free software: you can redistribute it and/or modify

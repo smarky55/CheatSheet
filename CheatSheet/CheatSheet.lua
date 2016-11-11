@@ -245,7 +245,7 @@ function CreateSheetFrame(index)
 	SheetFrame.fontString:SetPoint("TOPLEFT", 5, -5)
 	SheetFrame.fontString:SetWidth(130)
 	SheetFrame.BGTexture = SheetFrame:CreateTexture()
-	SheetFrame.BGTexture:SetTexture(0.1,0.1,0.1,0.5)
+	SheetFrame.BGTexture:SetColorTexture(0.1,0.1,0.1,0.5)
 	SheetFrame.BGTexture:SetAllPoints()
 	function SheetFrame:UpdateSize()
 		self:SetWidth(self:GetParent():GetWidth() - 10)
@@ -338,7 +338,7 @@ do
 		MainFrame:SetMovable(true)
 		
 		--local MBG = MainFrame:CreateTexture(nil, "BACKGROUND")
-		--MBG:SetTexture(0.5, 0, 0, 0.5)
+		--MBG:SetColorTexture(0.5, 0, 0, 0.5)
 		--MBG:SetAllPoints()
 	end
 	
@@ -383,7 +383,7 @@ do
 		end)
 		
 		local background = ScrollFrame:CreateTexture(nil, "BACKGROUND")
-		background:SetTexture(0.5, 0.5, 0.5, 0.5)
+		background:SetColorTexture(0.5, 0.5, 0.5, 0.5)
 		background:SetAllPoints()
 		
 		function ScrollFrame:UpdateFrameSizes(Width, Height)
@@ -432,17 +432,21 @@ do
 		end)
 		
 		local background = ScrollUpButton:CreateTexture()
-		background:SetTexture(0.1, 0.1, 0.1, 0.5)
+		--background:SetColorTexture(0.1, 0.1, 0.1, 0.5)
+		background:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up.blp")
+		background:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
 		background:SetAllPoints()
 		ScrollUpButton:SetNormalTexture(background)
 		
 		local highlight = ScrollUpButton:CreateTexture()
-		highlight:SetTexture(0.5, 0.5, 0.5, 1)
+		highlight:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Highlight.blp")
+		highlight:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
 		highlight:SetAllPoints()
 		ScrollUpButton:SetHighlightTexture(highlight)
 		
 		local pushed = ScrollUpButton:CreateTexture()
-		pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
+		pushed:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Down.blp")
+		pushed:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
 		pushed:SetAllPoints()
 		ScrollUpButton:SetPushedTexture(pushed)
 		
@@ -464,17 +468,20 @@ do
 		end)
 		
 		local background = ScrollDownButton:CreateTexture()
-		background:SetTexture(0.1, 0.1, 0.1, 0.5)
+		background:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up.blp")
+		background:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
 		background:SetAllPoints()
 		ScrollDownButton:SetNormalTexture(background)
 		
 		local highlight = ScrollDownButton:CreateTexture()
-		highlight:SetTexture(0.5, 0.5, 0.5, 1)
+		highlight:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Highlight.blp")
+		highlight:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
 		highlight:SetAllPoints()
 		ScrollDownButton:SetHighlightTexture(highlight)
 		
 		local pushed = ScrollDownButton:CreateTexture()
-		pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
+		pushed:SetTexture("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Down.blp")
+		pushed:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
 		pushed:SetAllPoints()
 		ScrollDownButton:SetPushedTexture(pushed)
 	end
@@ -494,11 +501,13 @@ do
 		end)
 		
 		local SlideBG = SlideFrame:CreateTexture(nil, "BACKGROUND")
-		SlideBG:SetTexture(0.1, 0.1, 0.1, 0.3)
+		SlideBG:SetColorTexture(0.1, 0.1, 0.1, 0.3)
 		SlideBG:SetAllPoints()
 		
 		local SlideThumb = SlideFrame:CreateTexture()
-		SlideThumb:SetTexture(0.1, 0.1, 0.1, 0.5)
+		SlideThumb:SetTexture("Interface\\Buttons\\UI-ScrollBar-Knob.blp")
+		SlideThumb:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
+		SlideThumb:SetSize(10, 10)
 		SlideFrame:SetThumbTexture(SlideThumb)
 	end
 	
@@ -519,17 +528,17 @@ do
 		end)
 		
 		local ResizeBG = ResizeButton:CreateTexture()
-		ResizeBG:SetTexture(0.1, 0.1, 0.1, 0.5)
+		ResizeBG:SetColorTexture(0.1, 0.1, 0.1, 0.5)
 		ResizeBG:SetAllPoints()
 		ResizeButton:SetNormalTexture(ResizeBG)
 		
 		local ResizeHL = ResizeButton:CreateTexture()
-		ResizeHL:SetTexture(0.5, 0.5, 0.5, 1)
+		ResizeHL:SetColorTexture(0.5, 0.5, 0.5, 1)
 		ResizeBG:SetAllPoints()
 		ResizeButton:SetHighlightTexture(ResizeHL)
 		
 		local ResizePSH = ResizeButton:CreateTexture()
-		ResizePSH:SetTexture(0.8, 0.8, 0.8, 0.5)
+		ResizePSH:SetColorTexture(0.8, 0.8, 0.8, 0.5)
 		ResizePSH:SetAllPoints()
 		ResizeButton:SetPushedTexture(ResizePSH)
 	end
@@ -558,12 +567,12 @@ do
 		VisibleButton:Enable()
 		
 		local VisibleBG = VisibleButton:CreateTexture()
-		VisibleBG:SetTexture(0.1, 0.1, 0.1, 0.7)
+		VisibleBG:SetColorTexture(0.1, 0.1, 0.1, 0.7)
 		VisibleBG:SetAllPoints()
 		VisibleButton:SetNormalTexture(VisibleBG)
 		
 		local VisiblePSH = VisibleButton:CreateTexture()
-		VisiblePSH:SetTexture(0.8, 0.8, 0.8, 0.7)
+		VisiblePSH:SetColorTexture(0.8, 0.8, 0.8, 0.7)
 		VisiblePSH:SetAllPoints()
 		VisibleButton:SetPushedTexture(VisiblePSH)
 		

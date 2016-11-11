@@ -69,7 +69,7 @@ do -- Frame Setup
 		ConfigFrame:SetToplevel(true)
 		ConfigFrame:SetClampedToScreen(true)
 		-- ConfigFrame:SetDontSavePosition(true)
-		-- ConfigFrame:Hide() 
+		ConfigFrame:Hide() 
 		
 		ConfigFrame:SetScript("OnSizeChanged", function(self, width, height)
 			self:SetWidth(math.max(width, WidthMin))
@@ -77,14 +77,14 @@ do -- Frame Setup
 		end)
 		
 		local background = ConfigFrame:CreateTexture(nil, "BACKGROUND")
-		background:SetTexture(0.4, 0.4, 0.4, 0.5)
+		background:SetColorTexture(0.4, 0.4, 0.4, 0.5)
 		background:SetAllPoints()
 	end
 	
 	do -- Set up title frame
 		TitleFrame:SetParent(ConfigFrame)
 		TitleFrame:SetPoint("TOPLEFT")
-		TitleFrame:SetPoint("BOTTOMRIGHT", ConfigFrame, "TOPRIGHT", -16, -16)
+		TitleFrame:SetPoint("BOTTOMRIGHT", ConfigFrame, "TOPRIGHT", -20, -20)
 		TitleFrame:EnableMouse(true)
 		TitleFrame:RegisterForDrag("LeftButton")
 		
@@ -102,14 +102,14 @@ do -- Frame Setup
 		TitleFrame.fontString:SetWidth(TitleFrame.fontString:GetStringWidth() + 10)
 		
 		local texture = TitleFrame:CreateTexture()
-		texture:SetTexture(0.1, 0.1, 0.1, 0.5)
+		texture:SetColorTexture(0.1, 0.1, 0.1, 0.5)
 		texture:SetAllPoints()
 	end
 	
 	do -- Set up tab list frame
 		TabListFrame:SetParent(ConfigFrame)
-		TabListFrame:SetPoint("TOPLEFT", 0, -16)
-		TabListFrame:SetPoint("BOTTOMRIGHT", ConfigFrame, "TOPRIGHT" ,0 ,-46)
+		TabListFrame:SetPoint("TOPLEFT", 0, -20)
+		TabListFrame:SetPoint("BOTTOMRIGHT", ConfigFrame, "TOPRIGHT" ,0 ,-50)
 		
 		function TabListFrame:Select(index)
 			local name = ""
@@ -164,17 +164,17 @@ do -- Frame Setup
 			end)
 			
 			frame.background = frame:CreateTexture()
-			frame.background:SetTexture(0.1, 0.1, 0.1, 0.5)
+			frame.background:SetColorTexture(0.1, 0.1, 0.1, 0.5)
 			frame.background:SetAllPoints()
 			frame:SetNormalTexture(frame.background)
 			
 			frame.pushed = frame:CreateTexture()
-			frame.pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
+			frame.pushed:SetColorTexture(0.8, 0.8, 0.8, 0.5)
 			frame.pushed:SetAllPoints()
 			frame:SetPushedTexture(frame.pushed)
 			
 			frame.selected = frame:CreateTexture()
-			frame.selected:SetTexture(0.5, 0.5, 0.5, 0.5)
+			frame.selected:SetColorTexture(0.5, 0.5, 0.5, 0.5)
 			frame.selected:SetAllPoints()
 			frame.selected:Hide()
 			
@@ -198,7 +198,7 @@ do -- Frame Setup
 			
 			
 			background = frame:CreateTexture()
-			background:SetTexture(0.2, 0.2, 0.2, 0.5)
+			background:SetColorTexture(0.2, 0.2, 0.2, 0.5)
 			background:SetAllPoints()
 			
 			self:UpdateOptionFrame(frame, option)
@@ -218,12 +218,12 @@ do -- Frame Setup
 			button:SetSize(20, 20)
 			
 			button.unchecked = button:CreateTexture()
-			button.unchecked:SetTexture(0.8, 0.5, 0.5, 0.5)
+			button.unchecked:SetColorTexture(0.8, 0.5, 0.5, 0.5)
 			button.unchecked:SetAllPoints()
 			button:SetNormalTexture(button.unchecked)
 			
 			button.checked = button:CreateTexture()
-			button.checked:SetTexture(0.5, 0.8, 0.5, 0.5)
+			button.checked:SetColorTexture(0.5, 0.8, 0.5, 0.5)
 			button.checked:SetAllPoints()
 			button:SetCheckedTexture(button.checked)
 			
@@ -257,7 +257,7 @@ do -- Frame Setup
 			editBox:SetNumber(parent.value)
 			
 			editBox.background = editBox:CreateTexture()
-			editBox.background:SetTexture(0.5, 0.5, 0.5, 0.5)
+			editBox.background:SetColorTexture(0.5, 0.5, 0.5, 0.5)
 			editBox.background:SetAllPoints()
 			
 			editBox:SetScript("OnEnterPressed", function(self)
@@ -343,7 +343,7 @@ do -- Frame Setup
 	do -- Set up tab scroll frame
 		TabScrollFrame:SetFrameStrata("MEDIUM")
 		TabScrollFrame:SetParent(ConfigFrame)
-		TabScrollFrame:SetPoint("TOPLEFT", 0, -46)
+		TabScrollFrame:SetPoint("TOPLEFT", 0, -50)
 		TabScrollFrame:SetPoint("BOTTOMRIGHT", -10, 0)
 		TabScrollFrame:SetMovable(true)
 		TabScrollFrame:EnableMouse(true)
@@ -379,12 +379,12 @@ do -- Frame Setup
 		end)
 		
 		local background = ResizeButton:CreateTexture()
-		background:SetTexture(0.1, 0.1, 0.1, 0.5)
+		background:SetColorTexture(0.1, 0.1, 0.1, 0.5)
 		background:SetAllPoints()
 		ResizeButton:SetNormalTexture(background)
 		
 		local pushed = ResizeButton:CreateTexture()
-		pushed:SetTexture(0.8, 0.8, 0.8, 0.5)
+		pushed:SetColorTexture(0.8, 0.8, 0.8, 0.5)
 		pushed:SetAllPoints()
 		ResizeButton:SetPushedTexture(pushed)
 	end
@@ -392,24 +392,33 @@ do -- Frame Setup
 	do -- Set up close button
 		CloseButton:SetParent(ConfigFrame)
 		CloseButton:SetPoint("TOPRIGHT")
-		CloseButton:SetPoint("BOTTOMLEFT", ConfigFrame, "TOPRIGHT", -16, -16)
+		CloseButton:SetPoint("BOTTOMLEFT", ConfigFrame, "TOPRIGHT", -20, -20)
 		CloseButton:EnableMouse(true)
 		CloseButton:RegisterForClicks("LeftButton")
 		CloseButton:Enable()
 		
 		CloseButton:SetScript("OnMouseUp", function(self, button)
+			CheatSheet.Settings.core.ConfigVisible.VAL = false
 			self:GetParent():Hide()
 		end)
 		
 		local background = CloseButton:CreateTexture()
-		background:SetTexture(0.5, 0.1, 0.1, 0.5)
+		background:SetTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Up")
+		background:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
 		background:SetAllPoints()
 		CloseButton:SetNormalTexture(background)
 		
 		local pushed = CloseButton:CreateTexture()
-		pushed:SetTexture(0.8, 0.3, 0.3, 0.5)
+		pushed:SetTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Down.blp")
+		pushed:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
 		pushed:SetAllPoints()
 		CloseButton:SetPushedTexture(pushed)
+		
+		local highlight = CloseButton:CreateTexture()
+		highlight:SetTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight.blp")
+		highlight:SetTexCoord(0.203125, 0.796875, 0.203125, 0.796875)
+		highlight:SetAllPoints()
+		CloseButton:SetHighlightTexture(highlight)
 	end
 end
 

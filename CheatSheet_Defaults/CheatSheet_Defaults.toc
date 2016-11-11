@@ -1,7 +1,8 @@
-##Interface: 60200
+##Interface: 70100
 ##Title: CheatSheet_Defaults
 ##Author: smarky55
 ##Version: 0.1
 ##Dependencies: CheatSheet
 
 CSHT_Defaults.lua
+CSHT_DungeonJournal.lua

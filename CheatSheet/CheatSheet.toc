@@ -1,4 +1,4 @@
-##Interface: 60200
+##Interface: 70100
 ##Title: CheatSheet
 ##Author: smarky55
 ##Version: 0.1
