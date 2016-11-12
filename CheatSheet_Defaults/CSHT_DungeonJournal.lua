@@ -116,7 +116,133 @@ CSHT_DJ.SHEETS = {
 							ROLE = "DAMAGER",
 							NOTE = {"Kill [Stinging Swarms] to avoid damage and being stunned by [Itchy!].",
 							"Move in a circular pattern to avoid Dantalionax's casts of [Dark Obliteration] after he splits when using [Dreadlords's Guile]."}
-						}
-
+						},
+						
+				-- Court of Stars
+						{ 	TITLE = "Patrol Captain Gerdo: Tank",
+							ZONE = "Court of Stars",
+							SUBZONE = "The Guilded Market",
+							ROLE = "TANK",
+							NOTE = {"Jump to free yourself from [Arcane Lockdown].",
+							"Gain threat on additional Nightwatch Reinforcements when Patrol Captain Gerdo uses [Signal Beacon]."}
+						},
+						{ 	TITLE = "Patrol Captain Gerdo: Healer",
+							ZONE = "Court of Stars",
+							SUBZONE = "The Guilded Market",
+							ROLE = "HEALER",
+							NOTE = {"Jump to free yourself from [Arcane Lockdown].",
+							"Be careful when Gerdo drinks his [Flask of the Solemn Night], as he will inflict substantially more damage."}
+						},
+						{ 	TITLE = "Patrol Captain Gerdo: Damage Dealers",
+							ZONE = "Court of Stars",
+							SUBZONE = "The Guilded Market",
+							ROLE = "DAMAGER",
+							NOTE = {"Jump to free yourself from [Arcane Lockdown].",
+							"Quickly defeat Nightwatch Reinforcements when [Signal Beacon] occurs to prevent them from overwhelming the party."}
+						},
+						{ 	TITLE = "Talixae Flamewreath: Tank",
+							ZONE = "Court of Stars",
+							SUBZONE = "Midnight Court",
+							ROLE = "TANK",
+							NOTE = {"Beware that [Burning Intensity] can inflict more and more damage as the fight continues.",
+							"Interrupt [Withering Soul] when possible to prevent it from stacking too much."}
+						},
+						{ 	TITLE = "Talixae Flamewreath: Healer",
+							ZONE = "Court of Stars",
+							SUBZONE = "Midnight Court",
+							ROLE = "HEALER",
+							NOTE = {"Dispel [Withering Soul] from allies before it stacks too much.",
+							"Beware that [Burning Intensity] can inflict more and more damage as the fight continues."}
+						},
+						{ 	TITLE = "Talixae Flamewreath: Damage Dealers",
+							ZONE = "Court of Stars",
+							SUBZONE = "Midnight Court",
+							ROLE = "DAMAGER",
+							NOTE = {"Move out of [Infernal Eruption] to avoid being blasted into the air.",
+							"Interrupt [Withering Soul] when possible to prevent it from stacking too much."}
+						},
+						{ 	TITLE = "Advisor Melandrus: Tank",
+							ZONE = "Court of Stars",
+							SUBZONE = "The Jeweled Estate",
+							ROLE = "TANK",
+							NOTE = {"Spread out to avoid getting multiple party members hit by [Blade Surge] at the same time.",
+							"Keep an eye on the direction that the images of Melandrus are facing to predict the path of [Piercing Gale]"}
+						},
+						{ 	TITLE = "Advisor Melandrus: Healer",
+							ZONE = "Court of Stars",
+							SUBZONE = "The Jeweled Estate",
+							ROLE = "HEALER",
+							NOTE = {"Spread out to avoid getting multiple party members hit by [Blade Surge] at the same time.",
+							"[Slicing Maelstrom] inflicts increasing damage as the fight progresses."}
+						},
+						{ 	TITLE = "Advisor Melandrus: Damage Dealers",
+							ZONE = "Court of Stars",
+							SUBZONE = "The Jeweled Estate",
+							ROLE = "DAMAGER",
+							NOTE = {"Spread out to avoid getting multiple party members hit by [Blade Surge] at the same time.",
+							"Keep an eye on the direction that the images of Melandrus are facing to predict the path of [Piercing Gale]"}
+						},
+						
+				-- Darkheart Thicket
+						{ 	TITLE = "Archdruid Glaidalis: Tank",
+							ZONE = "Darkheart Thicket",
+							SUBZONE = "Sanctum of G'hanir",
+							ROLE = "TANK",
+							NOTE = {"Position Archdruid Glaidalis so that [Primal Rampage] does not run over other players."}
+						},
+						{ 	TITLE = "Archdruid Glaidalis: Healer",
+							ZONE = "Darkheart Thicket",
+							SUBZONE = "Sanctum of G'hanir",
+							ROLE = "HEALER",
+							NOTE = {"Avoid being in front of Archdruid Glaidalis when he is casting [Primal Rampage].",
+							"Quickly heal targets affected by [Grevious Tear] to above 90% of their maximum health."}
+						},
+						{ 	TITLE = "Archdruid Glaidalis: Damage Dealers",
+							ZONE = "Darkheart Thicket",
+							SUBZONE = "Sanctum of G'hanir",
+							ROLE = "DAMGAER",
+							NOTE = {"Avoid being in front of Archdruid Glaidalis when he is casting [Primal Rampage]."}
+						},
+						{ 	TITLE = "Oakheart: Tank",
+							ZONE = "Darkheart Thicket",
+							SUBZONE = "Miasmic Gorge",
+							ROLE = "TANK",
+							NOTE = {"Face Oakheart away from allies so allies are not hit by [Nightmare Breath].",
+							"[Crushing Grip] deals significant damage."}
+						},
+						{ 	TITLE = "Oakheart: Healer",
+							ZONE = "Darkheart Thicket",
+							SUBZONE = "Miasmic Gorge",
+							ROLE = "HEALER",
+							NOTE = {"Avoid being in front of Oakheart when he is casting [Nightmare Breath].",
+							"[Crushing Grip] deals significant damage."}
+						},
+						{ 	TITLE = "Oakheart: Damage Dealers",
+							ZONE = "Darkheart Thicket",
+							SUBZONE = "Miasmic Gorge",
+							ROLE = "HEALER",
+							NOTE = {"Avoid being in front of Oakheart when he is casting [Nightmare Breath]."}
+						},
+						{ 	TITLE = "Dresaron",
+							ZONE = "Darkheart Thicket",
+							SUBZONE = "Tainted Burrow",
+							-- ROLE = "",
+							NOTE = {"Dresaron will use [Down Draft] to push players back.",
+							"Avoid disturbing the Nightmare Eggs and triggering [Hatch Welpling]."}
+						},
+						{ 	TITLE = "Shade of Xavius",
+							ZONE = "Darkheart Thicket",
+							SUBZONE = "Heart of Dread",
+							-- ROLE = "",
+							NOTE = {"If affected by [induced Paranoia], stay away from other players to keep them from taking damage and being feared.",
+							"At 50% health, the Shade of Xavius casts [Apocalyptic Nightmare] in an attempt to burn Shaladrassil down around him."}
+						},
 }						
 CheatSheet:Register(CSHT_DJ)
+						-- { 	TITLE = "",
+							-- ZONE = "",
+							-- SUBZONE = "",
+							-- ROLE = "",
+							-- NOTE = {""}
+						-- },
+						
