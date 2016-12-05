@@ -23,7 +23,7 @@ local ZoneEvents = {ZONE_CHANGED = true, ZONE_CHANGED_INDOORS = true, ZONE_CHANG
 local SortMethod = {}
 local EventFrame = CreateFrame("Frame")
 local MainFrame = CreateFrame("Frame", "CSHT_MainFrame")
-local ScrollFrame = CreateFrame("ScrollFrame", "CSHT_ScrollFrame")
+local ScrollFrame = CreateFrame("ScrollFrame", "CSHT_ScrollFrame", UIParent)
 local ScrollUpButton = CreateFrame("Button", "CSHT_ScrlUpButton")
 local ScrollDownButton = CreateFrame("Button", "CSHT_ScrlDnButton")
 local SlideFrame = CreateFrame("Slider", "CSHT_SlideFrame")
