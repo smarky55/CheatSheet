@@ -298,9 +298,9 @@ end
 do -- Event Handler Functions
 	function OnZoneChange(self, event, ...)
 		-- print("You are in: " .. GetMinimapZoneText())
-		local role = UnitGroupRolesAssigned("player")
+		-- local role = UnitGroupRolesAssigned("player")
 		local class = UnitClass("player")
-		local specID, spec = GetSpecializationInfo(GetSpecialization())
+		local specID, spec, d, i, b, role = GetSpecializationInfo(GetSpecialization())
 		loadSheets(GetZoneText(), GetSubZoneText(), class, spec, role)
 		UpdateSheetFrames()
 	end
@@ -308,9 +308,9 @@ do -- Event Handler Functions
 	function OnReload(self, event, ...)
 		-- print("Game Reloaded")
 		buildIndex()
-		local role = UnitGroupRolesAssigned("player")
+		-- local role = UnitGroupRolesAssigned("player")
 		local class = UnitClass("player")
-		local specID, spec = GetSpecializationInfo(GetSpecialization())
+		local specID, spec, d, i, b, role = GetSpecializationInfo(GetSpecialization())
 		loadSheets(GetZoneText(), GetSubZoneText(), class, spec, role)
 		UpdateSheetFrames()
 	end
