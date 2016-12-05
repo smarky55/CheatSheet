@@ -2,7 +2,7 @@
 ##Title: CheatSheet
 ##Author: smarky55
 ##Version: 0.1
-##SavedVariables: CSHT_Settings
+##SavedVariablesPerCharacter: CSHT_Settings
 
 
 CheatSheet_DefaultSettings.lua
